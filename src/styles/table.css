@@ -1,0 +1,66 @@
+.main-content {
+    margin-left: 300px;  /* Same as sidebar width */
+    padding: 20px;
+    width: calc(100% - 300px);  /* Ensure it takes the remaining space */
+  }
+  
+  .table-container {
+    width: 70%;
+    overflow-x: auto;
+  
+  }
+  
+  .custom-table {
+    width: 70%;  /* Reduce table width */
+    max-width: 1200px; /* Set a max width */
+    margin-left: 360px;
+    border-collapse: collapse;
+    margin-top: 150px;
+    border-radius: 500px;
+  }
+  .requests-container .custom-table {
+    width: 70%;  /* Reduce table width */
+    max-width: 1200px; /* Set a max width */
+    margin-left: 360px;
+    border-collapse: collapse;
+    margin-top: 95px;
+    border-radius: 500px;
+  }
+  
+  
+  .custom-table thead {
+    background-color: #f28b8b;
+    color: white;
+  }
+  
+  .custom-table th, .custom-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+  .custom-table tbody tr:hover {
+    background-color: #f1f1f1;
+  }
+  .plus-icon {
+    position: absolute; 
+    top: 0; 
+    right: 0; 
+    cursor: pointer; 
+    font-size: 24px; 
+    color: #f28b8b; 
+    margin-top: 120px;
+    margin-right: 120px;
+    
+}
+
+  
+  /* Responsive Fix */
+  @media (max-width: 1024px) {
+    .main-content {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+
+ 
+  

@@ -1,0 +1,108 @@
+/* Edit Course Modal */
+.edit-course-modal {
+    
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    width: 800px;
+    margin-left: 950px;
+    margin-top: 450px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    
+  }
+  
+  .edit-course-modal h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .edit-course-modal label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+  }
+  
+  .edit-course-modal input,
+  .edit-course-modal textarea,
+  .edit-course-modal select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .edit-course-modal textarea {
+    resize: vertical;
+    height: 80px;
+  }
+  
+  /* Image & Video Preview */
+  .preview-image,
+  .preview-video {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    margin-top: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .preview-video {
+    max-height: 250px;
+  }
+  
+  /* Buttons */
+  .buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .buttons button {
+    width: 48%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .buttons button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .buttons button[type="button"] {
+    background-color: #ccc;
+    color: #333;
+  }
+  
+  .buttons button:hover {
+    opacity: 0.8;
+  }
+  /* Small Image & Video Preview */
+.preview-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .preview-image,
+  .preview-video {
+    width: 100px; /* Smaller size */
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .preview-video {
+    height: 100px;
+  }
+  

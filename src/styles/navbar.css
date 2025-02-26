@@ -1,0 +1,100 @@
+/* General Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  .navbar {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Transparent background */
+    color: white;
+    padding: 10px 20px;
+    z-index: 1000;
+  }
+  
+  .navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .navbar-logo h1 {
+    font-size: 24px;
+    margin: 0;
+  }
+  
+  .navbar-links {
+    list-style-type: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .navbar-links li {
+    margin-left: 20px;
+  }
+  
+  .navbar-links li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s ease;
+  }
+  
+  .navbar-links li a:hover {
+    color: #f39c12; /* Hover color */
+  }
+  
+  /* Optional: Styling for smaller screens */
+  @media (max-width: 768px) {
+    .navbar-links {
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    .navbar-links li {
+      margin: 10px 0;
+    }
+  }
+  /* General navbar styles */
+.navbar {
+    display: flex;
+    justify-content: space-between; /* Space between left and right sections */
+    align-items: center;
+    padding: 10px 20px;
+    background-color: transparent; /* Transparent background */
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    backdrop-filter: blur(5px); /* Optional: Slight blur effect */
+  }
+  
+  /* Left section (Home & Courses) */
+  .nav-left {
+    display: flex;
+    gap: 20px; /* Spacing between items */
+  }
+  
+  /* Right section (Other menu items) */
+  .nav-right {
+    display: flex;
+    gap: 20px; /* Spacing between items */
+  }
+  
+  /* Styling for links */
+  .navbar a {
+    text-decoration: none;
+    color: white; /* Adjust color as needed */
+    font-size: 16px;
+    font-weight: bold;
+    padding: 8px 12px;
+    transition: 0.3s ease-in-out;
+  }
+  
+  .navbar a:hover {
+    color: #f39c12; /* Highlight color */
+  }
+  
