@@ -1,0 +1,78 @@
+/* LastWeekActivity Component */
+.activity-container {
+  background-color: #f9f9f9;
+  width: 80%;
+  margin-top: -40px;
+  margin-left: 300px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.activity-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #4a4a4a;
+}
+
+.activity-subtitle {
+  font-size: 20px;
+  font-weight: bold;
+  color: red;
+}
+
+.activity-table {
+  margin-top: 15px;
+}
+
+.activity-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.activity-table th, .activity-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+/* CourseProgress Component */
+.course-grid {
+  display: grid;
+  width: 80%;
+  height: 200px;
+  margin-left: 300px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.course-card {
+  background-color: white;
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.course-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: red;
+}
+
+.progress-bar {
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 50px;
+  height: 16px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background-color: green;
+  height: 100%;
+  border-radius: 50px;
+}

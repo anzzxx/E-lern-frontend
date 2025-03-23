@@ -1,0 +1,63 @@
+/* styles.css */
+.container {
+    width: 80%;
+    margin-left: 300px;
+    padding: 20px;
+   
+  }
+  
+  .stats {
+    display: flex; /* Use Flexbox */
+    gap: 20px; /* Add space between stat items */
+  }
+  
+  .stat-item {
+    flex: 1; /* Distribute available space equally */
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover */
+  }
+  
+  .stat-item:hover {
+    transform: translateY(-5px); /* Move the item up slightly on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Increase shadow on hover */
+  }
+  
+  .like-button {
+    background-color: #ff4757; /* Red background */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition */
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between icon and text */
+  }
+  
+  .like-button:hover {
+    background-color: #ff6b81; /* Lighter red on hover */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+  }
+  
+  .like-button.liked {
+    background-color: #2ed573; /* Green background when liked */
+    animation: likeAnimation 0.5s ease; /* Animation when liked */
+  }
+  
+  @keyframes likeAnimation {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }

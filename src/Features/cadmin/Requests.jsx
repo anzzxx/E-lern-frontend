@@ -1,31 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
-import api from "../../Redux/api"; // Import your API instance
+import api from "../../Redux/api"; // API instance
 import ReusableTable from "../../components/ReusableTable";
-import Reusablesidebar from '../../components/Reusablesidebar'
-import {handleLogout} from '../../components/Logout'
+import Reusablesidebar from "../../components/Reusablesidebar";
+import { handleLogout } from "../../components/Logout";
+import SearchFilter from "../../components/SearchFilter";
+
 const Requests = () => {
   const [courses, setCourses] = useState([]);
+  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const menuItems = [
     { label: "Dashboard", path: "/admin-panel" },
-    { label: "users", path: "/admin-panel/users" },
+    { label: "Users", path: "/admin-panel/users" },
     { label: "Requests", path: "/admin-panel/requests" },
-    // { label: "Lessons", path: "instructor/lessons" },
-    // { label: "Messages", path: "instructor/messages" },
-    // { label: "Payment", path: "instructor/payment" },
-    // { label: "Notification", path: "instructor/notifications" },
     { label: "Logout", onClick: handleLogout }, // Handle Logout separately
   ];
 
   // Fetch inactive courses
   useEffect(() => {
     const fetchCourses = async () => {
+      setLoading(true);
       try {
         const response = await api.get("cadmin/inactive-courses/");
-        setCourses(response.data);
+        const coursesData = response.data || []; // Ensure it's an array
+        setCourses(coursesData);
+        setFilteredCourses(coursesData);
       } catch (error) {
         console.error("Error fetching inactive courses:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -36,24 +41,21 @@ const Requests = () => {
   const handleApprove = async (id) => {
     try {
       await api.patch(`cadmin/activate-course/${id}/`);
-
-      // Update state after approval
-      setCourses((prevCourses) =>
-        prevCourses.map((course) =>
-          course.id === id ? { ...course, is_active: true } : course
-        )
+      setCourses((prev) =>
+        prev.map((course) => (course.id === id ? { ...course, is_active: true } : course))
       );
-
-      console.log(`Course ID ${id} approved`);
+      setFilteredCourses((prev) =>
+        prev.map((course) => (course.id === id ? { ...course, is_active: true } : course))
+      );
     } catch (error) {
       console.error(`Error approving course ${id}:`, error);
     }
   };
 
-  // Remove course from list (Simulating cancel)
+  // Remove course from list (Cancel Request)
   const handleCancel = (id) => {
-    setCourses((prevCourses) => prevCourses.filter((course) => course.id !== id));
-    console.log(`Course ID ${id} removed from the list`);
+    setCourses((prev) => prev.filter((course) => course.id !== id));
+    setFilteredCourses((prev) => prev.filter((course) => course.id !== id));
   };
 
   // Define table columns
@@ -90,16 +92,28 @@ const Requests = () => {
   ];
 
   return (
-       
-   <>
-    <div className="requests-container"> {/* Unique class for this component */}
-        <Reusablesidebar title="E-LERN" menuItems={menuItems} />
-        <h2>Course Requests</h2>
-         <ReusableTable columns={columns} data={courses} />
+    <div className="requests-container">
+      <Reusablesidebar title="E-LERN" menuItems={menuItems} />
+      <h2>Search Courses</h2>
+      
+      {!loading && courses.length > 0 && (
+        <SearchFilter
+          data={courses}
+          fields={["title", "instructor"]}
+          onFilter={setFilteredCourses}
+          showFilters={false}
+        />
+      )}
+
+      <h2>Course Requests</h2>
+      {loading ? (
+        <p>Loading...</p>
+      ) : filteredCourses.length > 0 ? (
+        <ReusableTable columns={columns} data={filteredCourses} />
+      ) : (
+        <p>No pending course requests.</p>
+      )}
     </div>
-   </>
-       
-    
   );
 };
 

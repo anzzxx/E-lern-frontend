@@ -1,0 +1,77 @@
+.search-filter-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    max-width: 50%;
+    padding-left: 700px;
+    padding-top: 0;
+    
+  }
+  
+  .search-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+  
+  .search-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+  
+  .filter-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .filter-select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #fff;
+    cursor: pointer;
+  }
+  
+  .clear-button {
+    padding: 8px 12px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+  }
+  
+  .clear-button:hover {
+    background: #c82333;
+  }
+  
+  @media (max-width: 768px) {
+    .search-filter-container {
+      flex-direction: column;
+      gap: 10px;
+    }
+  
+    .search-input,
+    .filter-select {
+      width: 100%;
+    }
+  }
+  .search-filter-wrapper {
+    width: 70%;
+    margin-left: auto;  /* Pushes it to the right */
+    margin-right: 100px;
+  }
+  
+  .search-filter-card {
+    max-width: 100%;
+  }
+  

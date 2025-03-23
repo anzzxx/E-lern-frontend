@@ -2,20 +2,25 @@ import React, { useEffect, useState, useRef } from "react";
 import "../styles/sidebar.css";
 import Profilebar from "../components/Profilebar";
 import { useDispatch, useSelector } from "react-redux";
-import { setShowModal, setName, setEmail, setImage } from "../Redux/Slices/EditProfileSlice";
+import {  setName, setEmail, setImage } from "../Redux/Slices/EditProfileSlice";
 import "../styles/showmenu.css";
 import api from "../Redux/api";
 import {handleLogout} from "../components/Logout"
-
+import ChangePasswordModal from '../Features/auth/ChangePasswordModal'
+import { useNavigate } from "react-router-dom";
 const Sidebar = () => {
+  const navigate=useNavigate()
   const dispatch = useDispatch();
-  const token = localStorage.getItem("accessToken");
+  const token = useSelector((state)=>state.auth.accessToken)
   const name = useSelector((state) => state.profile.name);
+
+  
   const email = useSelector((state) => state.profile.email);
   const image = useSelector((state) => state.profile.image);
   const [showImageModal, setShowImageModal] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const fileInputRef = useRef(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   
 
@@ -91,7 +96,7 @@ const Sidebar = () => {
 
   return (
     <>
-      <Profilebar />
+      
       <br />
       <br />
       <div className="sidebar">
@@ -145,11 +150,12 @@ const Sidebar = () => {
 
         <ul className="menu">
           <li>Dashboard</li>
-          <li>My Courses</li>
+          <li onClick={() => navigate('my-courses/')}>My Courses</li>
           <li>My Learning Activity</li>
-          <li>Change Password</li>
+          <li onClick={() => setIsModalOpen(true)}>Change Password</li>
           <li onClick={()=>{handleLogout()}}>Logout</li>
         </ul>
+        <ChangePasswordModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       </div>
     </>
   );

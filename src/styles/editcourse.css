@@ -106,3 +106,22 @@
     height: 100px;
   }
   
+
+/* Ensure full viewport height and center content */
+.page-container {
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: center;     /* Centers vertically */
+  min-height: 100vh;       /* Full viewport height */
+  width: 100%;
+}
+
+/* Adjust the form width */
+.form-container {
+  width: 70%;             /* Set width to 70% */
+  max-width: 900px;       /* Optional: Prevent it from being too wide */
+  background: #fff;       /* White background */
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}

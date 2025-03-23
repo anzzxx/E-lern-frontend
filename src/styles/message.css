@@ -1,0 +1,48 @@
+.message-box {
+  position: fixed;
+  top: 70px; /* Position at the top */
+  right: 20px; /* Display at the top-right corner */
+  color: white;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 250px;
+  animation: slideIn 0.5s ease-in-out; /* Slide-in animation */
+}
+
+/* Success message styling */
+.message-box.success {
+  background-color: #4caf50; /* Green */
+}
+
+/* Error message styling */
+.message-box.error {
+  background-color: #f44336; /* Red */
+}
+
+.close-btn {
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+  margin-left: 10px;
+  background: none;
+  border: none;
+  color: white;
+}
+
+.close-btn:hover {
+  color: #ffeb3b; /* Yellow on hover */
+}
+
+/* Slide-in animation */
+@keyframes slideIn {
+  from {
+    right: -300px;
+  }
+  to {
+    right: 20px;
+  }
+}

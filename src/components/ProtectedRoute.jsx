@@ -1,9 +1,10 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { useSelector } from "react-redux";
 
 const ProtectedRoute = ({ staffOnly = false }) => {
-  const token = localStorage.getItem("accessToken");
+  const token = useSelector((state) => state.auth.accessToken);
 
   if (!token) {
     return <Navigate to="/" replace />;
@@ -26,7 +27,7 @@ const ProtectedRoute = ({ staffOnly = false }) => {
 
 // ✅ Superuser Route: Allows Only Superusers
 const SuperUserRoute = () => {
-  const token = localStorage.getItem("accessToken");
+  const token = useSelector((state) => state.auth.accessToken); // FIXED
 
   if (!token) {
     return <Navigate to="/" replace />;
@@ -35,9 +36,8 @@ const SuperUserRoute = () => {
   try {
     const decoded = jwtDecode(token);
     const isSuperuser = decoded.is_superuser;
-    console.log(decoded.is_superuser);
     
-
+    
     if (!isSuperuser) {
       return <Navigate to="/" replace />;
     }
@@ -51,7 +51,7 @@ const SuperUserRoute = () => {
 
 // ✅ Public Route: Redirects Authenticated Users from Login/Signup Pages
 const PublicRoute = () => {
-  const token = localStorage.getItem("accessToken");
+  const token = useSelector((state) => state.auth.accessToken); // FIXED
 
   if (token) {
     return <Navigate to="/" replace />;

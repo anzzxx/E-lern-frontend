@@ -1,0 +1,193 @@
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 70vh;
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.media-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.play-button {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+}
+
+.play-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+
+.container-wrapper {
+  display: flex;
+  align-items: flex-start; /* Aligns both containers at the top */
+  gap: 20px; /* Space between the containers */
+  margin-left: 10px;
+  margin-top: 40px;
+}
+
+.course-container {
+  width: 100%;
+  max-width: 1000px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.price-container {
+  width: 600px; /* Adjust width as needed */
+  
+  
+  background:white;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  color: white;
+  text-align: center;
+  margin-right: 10px;
+}
+
+  
+  .course-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .course-title {
+    color: #d10024;
+    font-size: 22px;
+    font-weight: bold;
+  }
+  
+  .course-rating {
+    font-size: 16px;
+    color: #ff9800;
+  }
+  
+  .course-details ul {
+    padding-left: 20px;
+  }
+  
+  .course-details li {
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  
+  .enroll-section {
+    text-align: right;
+    margin-top: 15px;
+  }
+  
+  .enroll-button {
+    padding: 10px;
+    margin-top: 140px;
+    background: #805ad5;
+    color: white;
+    border: none;
+    width: 500px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .enroll-button:hover {
+    background: #6a4acb;
+  }
+  
+  .course-extras {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+  }
+  
+  .extra-item {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .extra-item::before {
+    margin-right: 5px;
+  }
+  .price-container {
+    width: 600px;
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    color: black; /* Changed from white to black for visibility */
+    text-align: center;
+    margin-right: 10px;
+  }
+  
+  .enroll-section {
+    text-align: right;
+    margin-top: 15px;
+  }
+  
+  .enroll-button {
+    padding: 10px;
+    margin-top: 20px; /* Adjusted from 140px for better positioning */
+    background: #805ad5;
+    color: white;
+    border: none;
+    width: 100%; /* Changed from fixed 500px to responsive width */
+    max-width: 500px; /* Ensures it doesn't get too large */
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .enroll-button:hover {
+    background: #6a4acb;
+  }
+  
+  .course-extras {
+    display: flex;
+    flex-wrap: wrap; /* Prevents overflow on smaller screens */
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+  }
+  
+  .extra-item {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px; /* Adds spacing for smaller screens */
+  }
+  

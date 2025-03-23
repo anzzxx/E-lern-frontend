@@ -7,6 +7,8 @@ function InstructorHome() {
   const menuItems = [
     { label: "Dashboard", path: "/instructor/" },  
     { label: "Courses", path: "/instructor/course" },    
+    { label: "lessons", path: "/instructor/lessons" },    
+    { label: "notification", path: "/instructor/notification" },    
     { label: "Logout", onClick: handleLogout },  
   ];
   return (

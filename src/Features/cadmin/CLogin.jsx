@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../Redux/Slices/cadminLoginSlice";
 import { useNavigate } from "react-router-dom";
+import { loginSuccess } from "../../Redux/Slices/authSlice";
 import "../../styles/clogin.css"
 
 const  CLogin = () => {
@@ -14,9 +15,16 @@ const  CLogin = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         dispatch(loginUser({ email, password })).then((result) => {
-            if (result.meta.requestStatus === "fulfilled") {
-                navigate("/admin-panel/"); // Redirect on success
-            }
+            console.log(result.payload);
+            dispatch(
+                loginSuccess({
+                    accessToken: result.payload.access,
+                    refreshToken: result.payload.refresh,
+                })
+            );
+            
+            navigate("/admin-panel/"); // Redirect on success
+            
         });
     };
 

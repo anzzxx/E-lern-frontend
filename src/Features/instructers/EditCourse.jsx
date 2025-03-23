@@ -72,7 +72,7 @@ const EditCourse = ({ course, onClose }) => {
     try {
       await dispatch(updateCourse({ courseId: course.id, updatedData })).unwrap();
       alert("Course updated successfully!");
-      window.location.reload();
+      
       onClose();
     } catch (error) {
       console.error("Update failed:", error);

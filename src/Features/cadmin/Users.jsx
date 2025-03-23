@@ -1,23 +1,29 @@
 import React, { useEffect, useState } from "react";
 import ReusableTable from "../../components/ReusableTable";
-import api from "../../Redux/api"; // Assuming you have an API instance
-import "../../styles/button.css"
-import Reusablesidebar from '../../components/Reusablesidebar'
-import {handleLogout} from '../../components/Logout'
+import api from "../../Redux/api"; // API instance
+import "../../styles/button.css";
+import Reusablesidebar from "../../components/Reusablesidebar";
+import { handleLogout } from "../../components/Logout";
+import SearchFilter from "../../components/SearchFilter";
+
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filteredUsers, setFilteredUsers] = useState([]);
 
   // Fetch users data
   useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true); // Ensure loading is set before fetching
       try {
-        const response = await api.get("cadmin/users"); // Adjust the endpoint as per your API
-        setUsers(response.data);
+        const response = await api.get("cadmin/users"); // Adjust endpoint
+        const usersData = response.data || []; // Ensure it's an array
+        setUsers(usersData);
+        setFilteredUsers(usersData);
       } catch (error) {
         console.error("Error fetching users:", error);
       } finally {
-        setLoading(false);
+        setLoading(false); // Stop loading after fetch
       }
     };
 
@@ -30,8 +36,13 @@ const Users = () => {
       const updatedStatus = !currentStatus;
       await api.patch(`cadmin/users/${id}/`, { is_active: updatedStatus });
 
-      // Update the local state to reflect the change
       setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.id === id ? { ...user, is_active: updatedStatus } : user
+        )
+      );
+
+      setFilteredUsers((prevUsers) =>
         prevUsers.map((user) =>
           user.id === id ? { ...user, is_active: updatedStatus } : user
         )
@@ -67,24 +78,34 @@ const Users = () => {
   ];
 
   const menuItems = [
-      { label: "Dashboard", path: "/admin-panel" },
-      { label: "users", path: "/admin-panel/users" },
-      { label: "Requests", path: "/admin-panel/requests" },
-      // { label: "Lessons", path: "instructor/lessons" },
-      // { label: "Messages", path: "instructor/messages" },
-      // { label: "Payment", path: "instructor/payment" },
-      // { label: "Notification", path: "instructor/notifications" },
-      { label: "Logout", onClick: handleLogout }, // Handle Logout separately
-    ];
+    { label: "Dashboard", path: "/admin-panel" },
+    { label: "Users", path: "/admin-panel/users" },
+    { label: "Requests", path: "/admin-panel/requests" },
+    { label: "Logout", onClick: handleLogout },
+  ];
 
   return (
     <div className="requests-container">
-      <Reusablesidebar title="E-LERN" menuItems={menuItems}/>
+      <Reusablesidebar title="E-LERN" menuItems={menuItems} />
+      <h2>Search Users</h2>
+      
+      {!loading && users.length > 0 && (
+        <SearchFilter
+          data={users}
+          fields={["username", "email"]} // Removed "is_active" since it's boolean
+          onFilter={setFilteredUsers}
+          showFilters={false}
+        />
+      )}
+
       <h2>Users List</h2>
+      
       {loading ? (
         <p>Loading...</p>
+      ) : filteredUsers.length > 0 ? (
+        <ReusableTable columns={columns} data={filteredUsers} />
       ) : (
-        <ReusableTable columns={columns} data={users} />
+        <p>No users found.</p>
       )}
     </div>
   );

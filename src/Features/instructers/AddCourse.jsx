@@ -1,101 +1,67 @@
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import * as yup from "yup";
 import { useDispatch } from "react-redux";
-import { addCourse } from "../../Redux/Slices/CoursesSlice"; // Import your addCourse async action
-import "../../styles/addcourse.css"; // Import your CSS file for styles and animations
+import { addCourse } from "../../Redux/Slices/CoursesSlice";
+import ReusableForm from "../../components/ReusableForm";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../../styles/editcourse.css";
+
+// Define fields dynamically
+const courseFields = [
+    { name: "title", label: "Course Title", type: "text", placeholder: "Enter course title" },
+    { name: "description", label: "Course Description", type: "textarea", placeholder: "Enter description" },
+    { name: "price", label: "Price ($)", type: "number", placeholder: "Enter price" },
+    { name: "thumbnail", label: "Thumbnail (Image)", type: "file", accept: "image/*" },
+    { name: "prev_vdo", label: "Preview Video", type: "file", accept: "video/*" },
+];
+
+// Define validation schema
+const courseValidationSchema = yup.object().shape({
+    title: yup.string().required("Title is required").min(3, "Title must be at least 3 characters"),
+    description: yup.string().required("Description is required").min(10, "Minimum 10 characters required"),
+    price: yup.number().typeError("Price must be a number").min(0, "Price cannot be negative").required("Price is required"),
+    thumbnail: yup.mixed().required("Thumbnail is required"),
+    prev_vdo: yup.mixed().required("Preview video is required"),
+});
 
 const AddCourse = () => {
     const dispatch = useDispatch();
-    const { register, handleSubmit, reset } = useForm();
-    const [isSuccess, setIsSuccess] = useState(false); // Track success status
-    const [successMessage, setSuccessMessage] = useState(""); // Store success message
-    const [isLoading, setIsLoading] = useState(false); // Track loading state
+    const [message, setMessage] = useState("");
 
-    const onSubmit = async (data) => {
+    const handleFormSubmit = async (data) => {
         const formData = new FormData();
         formData.append("title", data.title);
         formData.append("description", data.description);
         formData.append("price", data.price);
-
-        // Handle file uploads
-        if (data.thumbnail && data.thumbnail.length > 0) {
-            formData.append("thumbnail", data.thumbnail[0]);
-        }
-        if (data.prev_vdo && data.prev_vdo.length > 0) {
-            formData.append("prev_vdo", data.prev_vdo[0]);
-        }
-
-        // Log FormData contents for debugging
-        for (let pair of formData.entries()) {
-            console.log(pair[0], pair[1]);
-        }
+        formData.append("thumbnail", data.thumbnail[0]);
+        formData.append("prev_vdo", data.prev_vdo[0]);
 
         try {
-            setIsLoading(true); // Start loading
+            const result = await dispatch(addCourse(formData));
 
-            // Dispatch the addCourse action and wait for the result
-            const resultAction = await dispatch(addCourse(formData));
-
-            // Check if the result is successful
-            if (resultAction?.meta?.requestStatus === "fulfilled") {
-                setIsSuccess(true);
-                setSuccessMessage(resultAction.payload.message); // Assuming response contains message
-
-                // Reload the page after a short delay (for animation to finish)
-                setTimeout(() => {
-                    window.location.reload(); // Reload page after success
-                }, 2000); // Delay for 2 seconds for animation effect
+            if (result?.meta?.requestStatus === "fulfilled") {
+                setMessage({ text: "Course added successfully!", type: "success" });
             } else {
-                console.error("Failed to create course:", resultAction?.payload?.message);
-                setIsSuccess(false);
-                setSuccessMessage(resultAction?.payload?.message || "Something went wrong");
+                setMessage({ text: result?.payload?.message || "Failed to add course", type: "danger" });
             }
-
-            reset(); // Reset the form fields after submission
         } catch (error) {
-            console.error("Error submitting form:", error);
-            setIsSuccess(false);
-            setSuccessMessage("An error occurred while submitting the form.");
-        } finally {
-            setIsLoading(false); // Stop loading
+            setMessage({ text: "Error submitting form", type: "danger" });
         }
     };
 
+    
     return (
-        <div className="form-container">
-            <h2 className="form-title">Add New Course</h2>
-            <form onSubmit={handleSubmit(onSubmit)} className="course-form">
-                <input {...register("title")} placeholder="Course Title" className="input-field" required />
-                <textarea {...register("description")} placeholder="Course Description" className="input-field" required />
-                <input {...register("price", { min: 0 })} type="number" placeholder="Price" className="input-field" required/>
-
-
-                <label>Thumbnail (Image):</label>
-                <input {...register("thumbnail")} type="file" className="input-field file-input" accept="image/*" required />
-
-                <label>Preview Video:</label>
-                <input {...register("prev_vdo")} type="file" className="input-field file-input" accept="video/*" required />
-
-                <button type="submit" className="submit-btn" disabled={isLoading}>
-                    {isLoading ? "Submitting..." : "Submit"}
-                </button>
-            </form>
-
-            {/* Success message or animation */}
-            {isSuccess && (
-                <div className="success-message fade-in">
-                    <span>{successMessage}</span>
-                </div>
-            )}
-
-            {/* Error message */}
-            {!isSuccess && successMessage && (
-                <div className="error-message">
-                    <span>{successMessage}</span>
-                </div>
-            )}
+        <div className="page-container"> {/* Wrapper for centering */}
+            <div className="form-container">
+                <h2 className="text-center">Add New Course</h2>
+                {message && <div className={`alert alert-${message.type}`}>{message.text}</div>}
+    
+                <ReusableForm fields={courseFields} validationSchema={courseValidationSchema} onSubmit={handleFormSubmit} />
+            </div>
         </div>
     );
+    
+    
 };
 
 export default AddCourse;

@@ -15,7 +15,7 @@
     max-width: 1200px; /* Set a max width */
     margin-left: 360px;
     border-collapse: collapse;
-    margin-top: 150px;
+    margin-top: 50px;
     border-radius: 500px;
   }
   .requests-container .custom-table {
@@ -23,7 +23,7 @@
     max-width: 1200px; /* Set a max width */
     margin-left: 360px;
     border-collapse: collapse;
-    margin-top: 95px;
+    margin-top: 50px;
     border-radius: 500px;
   }
   
@@ -43,7 +43,7 @@
   }
   .plus-icon {
     position: absolute; 
-    top: 0; 
+    margin-top:200px; 
     right: 0; 
     cursor: pointer; 
     font-size: 24px; 

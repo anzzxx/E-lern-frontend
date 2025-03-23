@@ -1,8 +1,11 @@
 import axios from 'axios';
+import { loginSuccess } from "../Redux/Slices/authSlice";
+import  store  from "../Redux/Store";  // Import Redux store to access dispatch globally
 
 const BASE_URL = 'http://127.0.0.1:8000/';
+
 const api = axios.create({
-    baseURL: BASE_URL,  // Update base URL if needed
+    baseURL: BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -24,15 +27,23 @@ const refreshToken = async () => {
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) throw new Error('No refresh token found');
 
-        // console.log(`Refreshing token with: ${refreshToken}`);
-       
-        
         const response = await axios.post(`${BASE_URL}api/token/refresh/`, {
             refresh: refreshToken,
         });
 
         localStorage.setItem('accessToken', response.data.access);
         localStorage.setItem('refreshToken', response.data.refresh); // Save new refresh token if rotation is enabled
+       
+
+       
+        // Dispatch the new token to Redux store
+        store.dispatch(
+            loginSuccess({
+                user:response.data.user, 
+                accessToken: response.data.access,
+                refreshToken: response.data.refresh,
+            })
+        );
 
         refreshSubscribers.forEach((callback) => callback(response.data.access));
         refreshSubscribers = [];
@@ -42,7 +53,7 @@ const refreshToken = async () => {
         console.error('Token refresh failed:', error);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        // window.location.href = "/login";  // Redirect to login page
+        window.location.href = "/login";  // Redirect to login page
     } finally {
         isRefreshing = false;
     }
@@ -75,6 +86,7 @@ api.interceptors.response.use(
                 }
             } catch (refreshError) {
                 console.error('Token refresh attempt failed:', refreshError);
+                window.location.href = "/login";  // Redirect to login page
             }
         }
 
@@ -82,6 +94,4 @@ api.interceptors.response.use(
     }
 );
 
-
 export default api;
-
