@@ -6,6 +6,7 @@ import { loginSuccess } from "../../Redux/Slices/authSlice";
 import "../../styles/Login.css";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import Navbar from "../../components/Navbar";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -76,7 +77,10 @@ const Login = () => {
   }, [success, error, dispatch]);
 
   return (
+    <>
+    <Navbar/>
     <div className="auth-page">
+
       <div className="login-container">
         <div className="form-box">
           <h2>Sign In</h2>
@@ -112,6 +116,7 @@ const Login = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

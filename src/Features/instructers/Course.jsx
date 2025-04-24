@@ -1,46 +1,48 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchCourses } from "../../Redux/Slices/CoursesSlice";
+import { fetchInstructorCourses } from "../../Redux/Slices/CoursesSlice";
 import ReusableTable from "../../components/ReusableTable";
 import AddCourse from "../../Features/instructers/AddCourse";
 import EditCourse from "../../Features/instructers/EditCourse";
 import { PiFolderPlusBold } from "react-icons/pi";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit} from "react-icons/fa";
+import { IoMdOpen } from "react-icons/io";
 import { handleLogout } from "../../components/Logout";
-import api from "../../Redux/api";
 import "../../styles/addcourse.css";
 import Reusablesidebar from "../../components/Reusablesidebar";
 import SearchFilter from "../../components/SearchFilter"; // Import SearchFilter component
 import ReactPaginate from "react-paginate"; // Import pagination library
 import { useNavigate } from "react-router-dom";
+
 function Course() {
   const navigate=useNavigate();
   const dispatch = useDispatch();
-  const { courses = [] } = useSelector((state) => state.courses);
+  const {instructorCourses } = useSelector((state) => state.courses);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [showEditForm, setShowEditForm] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState(null);
+  // const [showEditForm, setShowEditForm] = useState(false);
+  // const [selectedCourse, setSelectedCourse] = useState(null);
   const [showfilter, setShowFilter] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
-
+  const courses = instructorCourses || [];
+  
   const user_id = useSelector((state) => state.auth.user?.id);
   const userCourses = courses.filter((course) => course.instructor && course.instructor.user_id === user_id);
 
   useEffect(() => {
-    dispatch(fetchCourses());
-  }, [dispatch]);
+    dispatch(fetchInstructorCourses());
+  }, [dispatch,showAddForm]);
 
   useEffect(() => {
-    setFilteredCourses(userCourses);
+    // setFilteredCourses(userCourses);
   }, [courses]);
 
-  const handleEdit = (course) => {
-    setSelectedCourse(course);
-    setShowEditForm(true);
-    setShowFilter(false);
-    setShowAddForm(false);
-  };
+  // const handleEdit = (course) => {
+  //   setSelectedCourse(course);
+  //   setShowEditForm(true);
+  //   setShowFilter(false);
+  //   setShowAddForm(false);
+  // };
 
   // const handleDelete = async (courseId) => {
   //   try {
@@ -62,8 +64,9 @@ function Course() {
       field: "action",
       render: (course) => (
         <div className="action-icons">
-          <FaEdit className="delete-icon" onClick={() => handleEdit(course)} />
-          <FaTrash className="delete-icon" onClick={()=>navigate(`/instructor/course/${course.id}`)}/>
+          {/* <FaEdit className="delete-icon" onClick={() => handleEdit(course)} /> */}
+          <IoMdOpen className="delete-icon" onClick={()=>navigate(`/instructor/course/${course.id}`)}/>
+          <button>Publish the Course</button>  
         </div>
       ),
     },
@@ -72,9 +75,9 @@ function Course() {
   const menuItems = [
     { label: "Dashboard", path: "/instructor/" },
     { label: "Courses", path: "/instructor/course" },
-    { label: "Lessons", path: "/instructor/lessons" },
     { label: "Notification", path: "/instructor/notification" },
-    { label: "MCQ-Test", path: "/instructor/mcq-test" },
+    { label: "Payment History", path: "/instructor/payment/details" },
+    { label: "Create Meeting", path: "/instructor/create-meenting" },
     { label: "Logout", onClick: handleLogout },
   ];
 
@@ -115,12 +118,12 @@ function Course() {
         />
       </div>
 
-      {showAddForm && <AddCourse />}
-      {showEditForm && selectedCourse && (
+    {showAddForm && <AddCourse setShowAddForm={setShowAddForm} />}
+      {/* {showEditForm && selectedCourse && (
         <EditCourse course={selectedCourse} onClose={() => setShowEditForm(false)} />
-      )}
+      )} */}
 
-      {!showAddForm && !showEditForm && (
+      {!showAddForm &&  (
         <>
           <ReusableTable columns={columns} data={displayedCourses} />
 

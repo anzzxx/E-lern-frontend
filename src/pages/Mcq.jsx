@@ -2,12 +2,12 @@ import React from 'react'
 import MCQTest from "../components/mcqform"
 import { useNavigate, useParams } from "react-router-dom";
 function Mcq() {
-  const { testID } = useParams();
+  const { testID,courseId } = useParams();
   
   
   return (
     <div>
-      <MCQTest testID={testID}/>
+      <MCQTest testID={testID} courseId={courseId}/>
     </div>
   )
 }

@@ -21,6 +21,8 @@
 /* Error message styling */
 .message-box.error {
   background-color: #f44336; /* Red */
+  color: white;
+  
 }
 
 .close-btn {

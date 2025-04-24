@@ -24,15 +24,15 @@ const ReviewAndChart = ({courseId}) => {
     };
 
    
-    console.log(`reviews${JSON.stringify(reviews)}`);
+    
     const transformedReviews = reviews
-        .filter((review) => review.course === courseId) // Fix: Use correct courseId
+        .filter((review) => review.course === courseId) 
         .map((review) => ({
             id: review.id,
             name: review.user_details.username,
             avatar:
                 review.user_details.profile ||
-                `https://i.pravatar.cc/50?img=${review.user_details.id}`, // Default avatar if null
+                `https://i.pravatar.cc/50?img=${review.user_details.id}`, 
             rating: review.rating,
             comment: review.comment,
             date: new Date(review.created_at).toLocaleDateString("en-US", {

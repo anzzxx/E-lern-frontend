@@ -4,9 +4,9 @@ import api from "../api";
 // Async thunk for fetching answers
 export const fetchAnswers = createAsyncThunk(
   "answers/fetchAnswers",
-  async (_, { rejectWithValue }) => {
+  async (qustioId, { rejectWithValue }) => {
     try {
-      const response = await api.get("mcq/answers/");
+      const response = await api.get(`mcq/answers/${qustioId}/`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to fetch answers");

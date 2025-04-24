@@ -1,22 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../api";
 import { handleLogout } from "../../components/Logout";
 // Define the async thunk for registering an instructor
+
 export const registerInstructor = createAsyncThunk(
   "instructor/registerInstructor",
   async (formData, { rejectWithValue, getState }) => {
     try {
-      // Get the token from  localStorage 
-      const token = localStorage.getItem("accessToken");
-    
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      };
-
-      const response = await axios.post("http://127.0.0.1:8000/instructor/create-instructor/", formData, config);
+      
+      const response = await api.post("instructor/create-instructor/", formData);
       handleLogout()
       return response.data;
     } catch (error) {

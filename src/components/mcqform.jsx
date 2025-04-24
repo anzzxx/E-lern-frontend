@@ -1,117 +1,125 @@
 import React, { useState, useEffect } from "react";
 import { Container, Card, Button, Form } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchAnswers } from "../Redux/Slices/AnswerSlice";
 import { fetchQuestions } from "../Redux/Slices/QustionSlice";
 import { fetchTests } from "../Redux/Slices/TestSlice";
 
-const MCQTest = ({testID}) => {
+const MCQTest = ({ testID, courseId }) => {
   const dispatch = useDispatch();
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
-  const option = useSelector((state) => state.answers.data) || [];
-  const questions = useSelector((state) => state.questions.data) || [];
+
+  // Selectors for Redux state
   const tests = useSelector((state) => state.tests.data) || [];
- 
-  
-  // Fetch data on mount
+  const questions = useSelector((state) => state.questions.data) || [];
+  const selectedTest = tests.find((test) => test.id === parseInt(testID, 10));
+
+  // Fetch data
   useEffect(() => {
-    dispatch(fetchTests());
-    dispatch(fetchQuestions());
-    dispatch(fetchAnswers());
-  }, [dispatch]);
+    const fetchData = async () => {
+      // await dispatch(fetchTests(parseInt(courseId, 10)));
+      if (selectedTest?.id) {
+        await dispatch(fetchQuestions(selectedTest.id));
+      }
+    };
+    fetchData();
+  }, [dispatch, courseId, selectedTest?.id]);
 
-  // Filter tests based on selected courseID
+  // Filter questions for the current test
+  const filteredQuestions = questions.filter(
+    (question) => question.test === parseInt(testID, 10)
+  );
 
-  
-  console.log(tests);
-  
-  const selectedTest = tests.find(test => test.id ===parseInt(testID, 10));
-  
-  // Filter questions that belong to the filtered tests
-  const filteredQuestions = questions.filter((question) => question.test === parseInt(testID, 10));
-  const filterdQustionIds=filteredQuestions.map((qus)=>qus.id)
-
-  const filterdOptions=option.filter((option)=>
-  filterdQustionIds.includes(option.question))
-
-  const options = filterdOptions
-
-  const handleAnswerChange = (questionId, answer) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: answer }));
+  // Handle answer selection
+  const handleAnswerChange = (questionId, answerText) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: answerText }));
   };
 
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
   };
 
-return (
-  <Container className="mt-5">
-     <h2 className="text-center">{selectedTest.title}</h2>
+  
+  const instructions = `
+    Welcome to the quiz! Please read the following instructions carefully:
+    1. Each question has multiple answer options, but only one is correct.
+    2. Select the correct answer by clicking the radio button next to your choice.
+    3. You can change your answer before submitting by selecting a different option.
+    4. Once you are ready, click the "Submit" button to see your results.
+    5. After submission, you will see whether each answer was correct or incorrect, along with the correct answer if you got it wrong.
+    Good luck!
+  `;
+
+  return (
+    <Container className="mt-5">
+      <h2 className="text-center">{selectedTest?.title || "Loading..."}</h2>
       <Card className="mb-4 p-3">
         <h5>Instructions:</h5>
-        <p>{selectedTest.description}</p>
+        <p style={{ whiteSpace: "pre-line" }}>{instructions}</p>
       </Card>
-    <Form onSubmit={handleSubmit}>
-      {filteredQuestions.length > 0 ? (
-        filteredQuestions.map((question) => (
-          <Card className="mb-3" key={question.id}>
-            <Card.Body>
-              <Card.Title>{question.text}</Card.Title>
-              {options
-                .filter((opt) => opt.question === question.id)
-                .map((option, index) => (
+
+      <Form onSubmit={handleSubmit}>
+        {filteredQuestions.length > 0 ? (
+          filteredQuestions.map((question) => (
+            <Card className="mb-3" key={question.id}>
+              <Card.Body>
+                <Card.Title>{question.text}</Card.Title>
+                {question.answers.map((answer) => (
                   <Form.Check
-                    key={index}
+                    key={answer.id}
                     type="radio"
                     name={`question-${question.id}`}
-                    label={option.text}
-                    value={option.text}
-                    checked={answers[question.id] === option.text}
-                    onChange={() => handleAnswerChange(question.id, option.text)}
+                    label={answer.text}
+                    value={answer.text}
+                    checked={answers[question.id] === answer.text}
+                    onChange={() => handleAnswerChange(question.id, answer.text)}
+                    disabled={submitted}
                   />
                 ))}
-            </Card.Body>
-          </Card>
-        ))
-      ) : (
-        <p>No questions available for this test.</p>
-      )}
+              </Card.Body>
+            </Card>
+          ))
+        ) : (
+          <p>No questions available for this test.</p>
+        )}
 
-      {filteredQuestions.length > 0 && (
-        <div className="text-center">
-          <Button variant="primary" type="submit">
-            Submit
-          </Button>
-        </div>
-      )}
-    </Form>
+        {filteredQuestions.length > 0 && !submitted && (
+          <div className="text-center">
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+          </div>
+        )}
+      </Form>
 
-    {submitted && filteredQuestions.length > 0 && (
-      <Card className="mt-4 p-3">
-        <h4>Results:</h4>
-        {filteredQuestions.map((question) => (
-          <p key={question.id}>
-            {question.text} <br />
-            <strong>Your Answer:</strong> {answers[question.id] || "Not Answered"} <br />
-            {options.find(
-              (opt) => opt.question === question.id && opt.text === answers[question.id]
-            )?.is_correct ? (
-              <span className="text-success">✅ Correct</span>
-            ) : (
-              <span className="text-danger">
-                ❌ Incorrect (Correct Answer: {
-                  options.find((opt) => opt.question === question.id && opt.is_correct)?.text
-                })
-              </span>
-            )}
-          </p>
-        ))}
-      </Card>
-    )}
-  </Container>
-);
+      {submitted && filteredQuestions.length > 0 && (
+        <Card className="mt-4 p-3">
+          <h4>Results:</h4>
+          {filteredQuestions.map((question) => {
+            const correctAnswer = question.answers.find((ans) => ans.is_correct)?.text;
+            const userAnswer = answers[question.id];
+            const isCorrect = userAnswer === correctAnswer;
+
+            return (
+              <p key={question.id}>
+                {question.text} <br />
+                <strong>Your Answer:</strong> {userAnswer || "Not Answered"} <br />
+                {isCorrect ? (
+                  <span className="text-success">✅ Correct</span>
+                ) : (
+                  <span className="text-danger">
+                    ❌ Incorrect (Correct Answer: {correctAnswer})
+                  </span>
+                )}
+              </p>
+            );
+          })}
+        </Card>
+      )}
+    </Container>
+  );
 };
 
 export default MCQTest;

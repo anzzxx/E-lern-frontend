@@ -5,12 +5,12 @@ import "../../styles/button.css";
 import Reusablesidebar from "../../components/Reusablesidebar";
 import { handleLogout } from "../../components/Logout";
 import SearchFilter from "../../components/SearchFilter";
-
+import ReactPaginate from "react-paginate";
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filteredUsers, setFilteredUsers] = useState([]);
-
+  const [currentPage, setCurrentPage] = useState(0);
   // Fetch users data
   useEffect(() => {
     const fetchUsers = async () => {
@@ -22,12 +22,14 @@ const Users = () => {
         setFilteredUsers(usersData);
       } catch (error) {
         console.error("Error fetching users:", error);
-      } finally {
-        setLoading(false); // Stop loading after fetch
       }
     };
 
     fetchUsers();
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   // Toggle user active status
@@ -81,32 +83,67 @@ const Users = () => {
     { label: "Dashboard", path: "/admin-panel" },
     { label: "Users", path: "/admin-panel/users" },
     { label: "Requests", path: "/admin-panel/requests" },
+    { label: "Reported Courses", path: "/admin-panel/reportedcourse-list" },
+    { label: "Payments", path: "/admin-panel/payments" },
+    { label: "Instructors", path: "/admin-panel/instructors" },
     { label: "Logout", onClick: handleLogout },
   ];
+
+  // **Pagination Logic**
+  const itemsPerPage = 5;
+  const pageCount = Math.ceil(filteredUsers.length / itemsPerPage);
+  const handlePageClick = ({ selected }) => {
+    setCurrentPage(selected);
+  };
+  const displayedRequests = filteredUsers.slice(
+    currentPage * itemsPerPage,
+    (currentPage + 1) * itemsPerPage
+  );
 
   return (
     <div className="requests-container">
       <Reusablesidebar title="E-LERN" menuItems={menuItems} />
       <h2>Search Users</h2>
-      
+
       {!loading && users.length > 0 && (
         <SearchFilter
           data={users}
-          fields={["username", "email"]} // Removed "is_active" since it's boolean
+          fields={["username", "email"]}
           onFilter={setFilteredUsers}
           showFilters={false}
         />
       )}
 
       <h2>Users List</h2>
-      
+
       {loading ? (
-        <p>Loading...</p>
+        <div className="text-center py-4">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
       ) : filteredUsers.length > 0 ? (
-        <ReusableTable columns={columns} data={filteredUsers} />
+        <ReusableTable columns={columns} data={displayedRequests} />
       ) : (
         <p>No users found.</p>
       )}
+      <div>
+        <ReactPaginate
+          previousLabel={"← Previous"}
+          nextLabel={"Next →"}
+          breakLabel={"..."}
+          pageCount={pageCount}
+          marginPagesDisplayed={1}
+          pageRangeDisplayed={1}
+          onPageChange={handlePageClick}
+          containerClassName={"pagination"}
+          pageClassName={"page-item"}
+          activeClassName={"active"}
+          previousClassName={"page-item"}
+          nextClassName={"page-item"}
+          breakClassName={"page-item"}
+        />
+      </div>
     </div>
   );
 };

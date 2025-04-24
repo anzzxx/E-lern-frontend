@@ -5,23 +5,26 @@ import ReusableTable from "../../components/ReusableTable";
 import Reusablesidebar from "../../components/Reusablesidebar";
 import { handleLogout } from "../../components/Logout";
 import SearchFilter from "../../components/SearchFilter";
-
+import ReactPaginate from "react-paginate"; 
 const Requests = () => {
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [currentPage, setCurrentPage] = useState(0);
   const menuItems = [
     { label: "Dashboard", path: "/admin-panel" },
     { label: "Users", path: "/admin-panel/users" },
     { label: "Requests", path: "/admin-panel/requests" },
+    { label: "Reported Courses", path: "/admin-panel/reportedcourse-list" },
+    {label: "Payments", path: "/admin-panel/payments" },
+    { label: "Instructors", path: "/admin-panel/instructors" },
     { label: "Logout", onClick: handleLogout }, // Handle Logout separately
   ];
 
   // Fetch inactive courses
   useEffect(() => {
     const fetchCourses = async () => {
-      setLoading(true);
+      
       try {
         const response = await api.get("cadmin/inactive-courses/");
         const coursesData = response.data || []; // Ensure it's an array
@@ -30,11 +33,15 @@ const Requests = () => {
       } catch (error) {
         console.error("Error fetching inactive courses:", error);
       } finally {
-        setLoading(false);
+       
       }
     };
 
     fetchCourses();
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   // Approve course (Activate)
@@ -91,6 +98,23 @@ const Requests = () => {
     },
   ];
 
+  
+
+
+  // **Pagination Logic**
+    
+  const itemsPerPage = 1;
+  const pageCount = Math.ceil(filteredCourses.length / itemsPerPage);
+
+  const handlePageClick = ({ selected }) => {
+      setCurrentPage(selected);
+  };
+  const displayedRequests = filteredCourses.slice(
+      currentPage * itemsPerPage,
+      (currentPage + 1) * itemsPerPage
+  );
+  console.log(filteredCourses);
+  
   return (
     <div className="requests-container">
       <Reusablesidebar title="E-LERN" menuItems={menuItems} />
@@ -99,7 +123,7 @@ const Requests = () => {
       {!loading && courses.length > 0 && (
         <SearchFilter
           data={courses}
-          fields={["title", "instructor"]}
+          fields={["title", "instructor","description"]}
           onFilter={setFilteredCourses}
           showFilters={false}
         />
@@ -107,12 +131,33 @@ const Requests = () => {
 
       <h2>Course Requests</h2>
       {loading ? (
-        <p>Loading...</p>
+         <div className="text-center py-4">
+         <div className="spinner-border" role="status">
+             <span className="visually-hidden">Loading...</span>
+         </div>
+     </div>
       ) : filteredCourses.length > 0 ? (
-        <ReusableTable columns={columns} data={filteredCourses} />
+        <ReusableTable columns={columns} data={displayedRequests} />
       ) : (
         <p>No pending course requests.</p>
       )}
+      <div>
+      <ReactPaginate
+            previousLabel={"← Previous"}
+            nextLabel={"Next →"}
+            breakLabel={"..."}
+            pageCount={pageCount}
+            marginPagesDisplayed={1}
+            pageRangeDisplayed={1}
+            onPageChange={handlePageClick}
+            containerClassName={"pagination"}
+            pageClassName={"page-item"}
+            activeClassName={"active"}
+            previousClassName={"page-item"}
+            nextClassName={"page-item"}
+            breakClassName={"page-item"}
+          />
+      </div>
     </div>
   );
 };

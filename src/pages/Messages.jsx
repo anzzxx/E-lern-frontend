@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'; // ✅ Import useEffect
 import Chat from '../components/Chat';
-import { fetchEnrollments } from "../Redux/Slices/enrollmentSlice";
+import { fetchEnrolledCourses } from "../Redux/Slices/enrollmentSlice";
 import { useSelector, useDispatch } from 'react-redux';
 
 function Messages() {
@@ -9,7 +9,7 @@ function Messages() {
     const token = useSelector((state) => state.auth?.accessToken || null);
     
     useEffect(() => {
-        dispatch(fetchEnrollments()); // ✅ Dispatch Redux action
+        dispatch(fetchEnrolledCourses()); // ✅ Dispatch Redux action
     }, [dispatch]);
 
     const { data, loading, error } = useSelector((state) => state.enrollments);

@@ -1,8 +1,8 @@
 .media-upload-card {
     display: flex;
     flex-direction: column;
-    background-color: #100e0e;
-    color: white;
+    background-color: #b02323;
+    color: rgb(218, 67, 67);
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 10px;

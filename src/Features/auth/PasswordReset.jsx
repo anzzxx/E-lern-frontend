@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../Redux/api";
-import "../../styles/Login.css"; // Using the same styles as Signup and Forgot Password
+import "../../styles/Login.css"; 
 
 const ResetPassword = () => {
   const { uid, token } = useParams();

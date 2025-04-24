@@ -150,6 +150,7 @@ const Sidebar = () => {
 
         <ul className="menu">
           <li>Dashboard</li>
+          <li onClick={() => navigate('join-meeting')}>Join Meeting</li>
           <li onClick={() => navigate('my-courses/')}>My Courses</li>
           <li>My Learning Activity</li>
           <li onClick={() => setIsModalOpen(true)}>Change Password</li>

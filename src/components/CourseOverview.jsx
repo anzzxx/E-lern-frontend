@@ -1,41 +1,37 @@
 import React, { useEffect, useState } from "react";
 import '../styles/videoplyer.css';
 import { useSelector, useDispatch } from "react-redux";
-import { fetchCourses } from "../Redux/Slices/CoursesSlice";
+import { fetchAllCourses } from "../Redux/Slices/CoursesSlice";
 import { useParams } from "react-router-dom";
 import RazorpayButton from "../components/RazorpayButton";
 import { Button } from "react-bootstrap"; // Import Bootstrap Button
+import { fetchEnrolledCourses } from "../Redux/Slices/enrollmentSlice";
 const CourseOverview = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const { courses, loading } = useSelector((state) => state.courses);
-
-
+  const { allCourses, loading } = useSelector((state) => state.courses);
   const [selectedCourse, setSelectedCourse] = useState(null);
-
   const user = useSelector((state) => state.auth.user);
   const userId = user ? user.id : null;  // Fix: Avoid accessing id of null
-
+  const { courses } = useSelector((state) => state.enrollments);
   const { data } = useSelector((state) => state.enrollments);
-  const filteredEnrollments = userId
-    ? data?.filter((enrollment) => enrollment.user.id === userId)
-    : [];
-
-  const cs = filteredEnrollments?.map((enrollment) => enrollment.course);
-  const Enrolled = cs.some(course => course.id === selectedCourse?.id);
-
-
+  const isAuthenticated=useSelector((state)=>state.auth.isAuthenticated)
+  const Enrolled = courses?.some(course => course.id.toString() === id) || false; 
 
 
   useEffect(() => {
-    dispatch(fetchCourses());
+    dispatch(fetchAllCourses());
+    if(isAuthenticated){
+      dispatch(fetchEnrolledCourses());
+    }
+    
   }, [dispatch]);
 
   useEffect(() => {
-    if (courses?.length > 0) {
-      setSelectedCourse(courses.find(course => course.id.toString() === id));
+    if (allCourses?.length > 0) {
+      setSelectedCourse(allCourses.find(course => course.id.toString() === id));
     }
-  }, [courses, id]);
+  }, [allCourses, id]);
 
   if (loading || !selectedCourse) {
     return <div className="loading">Loading course details...</div>;

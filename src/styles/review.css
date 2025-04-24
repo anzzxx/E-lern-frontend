@@ -128,3 +128,141 @@
 .star-rating .star:hover ~ .star {
   color: #ffcc00; /* Color on hover */
 }
+/* Three-dot menu styles */
+.review-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.review-menu-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.menu-dot {
+  font-size: 16px;
+  line-height: 8px;
+  color: #666;
+}
+
+.review-menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  z-index: 10;
+  min-width: 100px;
+}
+
+.menu-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+.edit-item {
+  color: #333;
+  border-bottom: 1px solid #eee;
+}
+
+.delete-item {
+  color: #e74c3c;
+}
+
+/* Review header layout */
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Edit actions */
+.edit-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.action-button {
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.save-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.cancel-button {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.edit-comment {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  margin-top: 8px;
+}
+/* Review menu styles */
+.review-menu-container {
+  position: relative;
+}
+
+.review-menu-button {
+  margin-left: auto;
+}
+
+.review-menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1;
+  min-width: 120px;
+  padding: 4px 0;
+}
+
+.menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 4px 12px;
+  border-radius: 0;
+}
+
+/* Edit actions */
+.edit-actions {
+  margin-top: 12px;
+  display: flex;
+}
+
+/* Rest of your existing CSS remains the same */

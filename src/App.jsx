@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { jwtDecode } from "jwt-decode"; 
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import { useSelector } from "react-redux";
 
 import Navbar from "./components/Navbar";
@@ -20,66 +20,91 @@ import AdminPanal from "./Features/cadmin/AdminPanal";
 import Users from "./Features/cadmin/Users";
 import ForgotPassword from "./Features/auth/ForgetPass";
 import ResetPassword from './Features/auth/PasswordReset';
-import Lessons from "./Features/instructers/Lessons";
 import CourseDetail from "./pages/CourseDetail";
-import Notification from './Features/notifications/Notification';
 import Messages from "./pages/Messages";
-import PaymentSuccess from './components/PaymentSucces'
-import PaymentFailed from './components/PaymentFaild'
-import Mycourses from './pages/Mycourses'
+import PaymentSuccess from './components/PaymentSucces';
+import PaymentFailed from './components/PaymentFaild';
+import Mycourses from './pages/Mycourses';
 import SendNotification from "./Features/instructers/SendNotification";
 import CourseWatch from "./pages/CourseWatch";
-import CourseView   from "./Features/instructers/CourseView"
-import McqTest from "./Features/instructers/McqTest";
 import Mcq from "./pages/Mcq";
+import ReportedCourse from "./Features/cadmin/ReportedCourse";
+import Payments from "./Features/cadmin/Payments";
+import Instructors from "./Features/cadmin/Instructors";
+import InstructorPayments from "./Features/cadmin/InstructorPayments";
+import Revenue from "./Features/instructers/Revenue";
+import Test from "./components/Test";
+import CourseDetailView from "./Features/instructers/courseDetailView";
+import InstructorPaymentDashboard from "./Features/instructers/InstructorPaymentDashboard";
+import QuizManagement from "./Features/mcqtest/QuizManagement";
+import SearchPage from "./components/SearchPage";
+import Room from "./Features/Metting/Room";
+import Join from "./Features/Metting/Join";
+import Studentjoin from "./Features/Metting/Studentjoin";
+
 function App() {
-  const token = useSelector((state) => state.auth.accessToken);  // ✅ Move useSelector here
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isStaff, setIsStaff] = useState(false);
-  const [isSuperuser, setIsSuperuser] = useState(false);
+  const { allCourses } = useSelector((state) => state.courses);
+  // const token = useSelector((state) => state.auth.accessToken);
+  // const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // const [isStaff, setIsStaff] = useState(false);
+  // const [isSuperuser, setIsSuperuser] = useState(false);
 
-  useEffect(() => {
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        setIsAuthenticated(true);
-        setIsStaff(decoded.is_staff);
-        setIsSuperuser(decoded.is_superuser);
-      } catch (error) {
-        console.error("Invalid token:", error);
-        setIsAuthenticated(false);
-        setIsStaff(false);
-        setIsSuperuser(false);
-      }
-    } else {
-      setIsAuthenticated(false);
-      setIsStaff(false);
-      setIsSuperuser(false);
-    }
+  // const navigate = useNavigate();
+  // const location = useLocation();
 
-    // Listen for storage changes (for example, logout from another tab)
-    const handleStorageChange = () => {
-      if (!localStorage.getItem("accessToken")) {
-        setIsAuthenticated(false);
-        setIsStaff(false);
-        setIsSuperuser(false);
-      }
-    };
+  // useEffect(() => {
+  //   const isRefreshed = sessionStorage.getItem("hasRefreshed");
 
-    window.addEventListener("storage", handleStorageChange);
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, [token]);  // ✅ Depend on `token` instead of calling useSelector inside
+  //   if (!isRefreshed) {
+  //     sessionStorage.setItem("hasRefreshed", "true");
+
+  //     if (location.pathname !== "/") {
+  //       navigate("/", { replace: true });
+  //     }
+  //   }
+  // }, [location.pathname, navigate]);
+
+  
+
+  // useEffect(() => {
+  //   if (token) {
+  //     try {
+  //       const decoded = jwtDecode(token);
+  //       setIsAuthenticated(true);
+  //       setIsStaff(decoded.is_staff);
+  //       setIsSuperuser(decoded.is_superuser);
+  //     } catch (error) {
+  //       console.error("Invalid token:", error);
+  //       setIsAuthenticated(false);
+  //       setIsStaff(false);
+  //       setIsSuperuser(false);
+  //     }
+  //   } else {
+  //     setIsAuthenticated(false);
+  //     setIsStaff(false);
+  //     setIsSuperuser(false);
+  //   }
+
+  //   const handleStorageChange = () => {
+  //     if (!localStorage.getItem("accessToken")) {
+  //       setIsAuthenticated(false);
+  //       setIsStaff(false);
+  //       setIsSuperuser(false);
+  //     }
+  //   };
+
+  //   window.addEventListener("storage", handleStorageChange);
+  //   return () => window.removeEventListener("storage", handleStorageChange);
+  // }, [token]);
 
   return (
-    <Router>
-      <Navbar isAuthenticated={isAuthenticated} isStaff={isStaff} isSuperuser={isSuperuser} />
+    <>
+      {/* <Navbar  /> */}
+      
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/course/:id" element={<CourseDetail />} />
-
-        {/* 🚫 Prevent Authenticated Users from Accessing Login/Signup */}
+        <Route path="/search" element={<SearchPage allCourses={allCourses} />} />
         <Route element={<PublicRoute />}>
           <Route path="login/" element={<Login />} />
           <Route path="otp-validation/" element={<OTPVerification />} />
@@ -87,41 +112,51 @@ function App() {
           <Route path="clogin/" element={<CLogin />} />
           <Route path="reset-password/:uid/:token" element={<ResetPassword />} />
           <Route path="forgot-password/" element={<ForgotPassword />} />
+          
         </Route>
 
-        <Route path="become-instructor/" element={<TeachOnELERN />} />
+        
 
-        {/* ✅ Protect Profile Route for Any Authenticated User */}
         <Route element={<ProtectedRoute />}>
+          <Route path="become-instructor/" element={<TeachOnELERN />} />
           <Route path="profile/" element={<Profile />} />
           <Route path="messages/" element={<Messages />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />
-          <Route path="/profile/my-courses" element={<Mycourses/>} />
+          <Route path="/profile/my-courses" element={<Mycourses />} />
           <Route path="/watch-course/:id" element={<CourseWatch />} />
-          <Route path="mcq/test/:testID" element={<Mcq/>} />
+          <Route path="mcq/test/:testID/:courseId/" element={<Mcq />} />
+          <Route path="/join/meeting/:roomName/" element={<Room />} />
+          <Route path="/profile/join-meeting" element={<Studentjoin/>}/> 
+
+      
         </Route>
 
-        {/* Superuser-Only Routes */}
         <Route element={<SuperUserRoute />}>
           <Route path="/admin-panel" element={<AdminPanal />} />
           <Route path="/admin-panel/users" element={<Users />} />
           <Route path="/admin-panel/requests" element={<Requests />} />
+          <Route path="/admin-panel/reportedcourse-list" element={<ReportedCourse />} />
+          <Route path="/admin-panel/payments" element={<Payments />} />
+          <Route path="/admin-panel/instructors" element={<Instructors />} />
+          <Route path="/admin-panel/instructors/details/:instructorId/" element={<InstructorPayments />} />
         </Route>
 
-        {/* 🔒 Protect Instructor Routes for Staff Only */}
         <Route element={<ProtectedRoute staffOnly={true} />}>
           <Route path="/instructor" element={<InstructorHome />} />
           <Route path="/instructor/category" element={<Category />} />
           <Route path="/instructor/course" element={<Course />} />
-          <Route path="/instructor/lessons" element={<Lessons />} />
-          <Route path="/instructor/notification" element={<SendNotification/>} />
-          <Route path="/instructor/course/:id" element={<CourseView/>} />
-          <Route path="/instructor/mcq-test" element={<McqTest/>} />
-         
+          <Route path="/instructor/notification" element={<SendNotification />} />
+          <Route path="/instructor/course/:id" element={<CourseDetailView />} />
+          <Route path="/instructor/course/create-test/:id" element={<Test />} />
+          <Route path="/instructor/course/manage-test/:testId/:courseId/" element={<QuizManagement />} />
+          <Route path="/instructor/revenue" element={<Revenue />} />
+          <Route path="/instructor/payment/details" element={<InstructorPaymentDashboard/>} />
+          <Route path="/instructor/create-meenting" element={<Join/>}/>
+          
         </Route>
       </Routes>
-    </Router>
+    </>
   );
 }
 

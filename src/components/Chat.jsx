@@ -1,27 +1,37 @@
 import React, { useState, useEffect, useRef } from "react";
 import api from "../Redux/api";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import "../styles/chat.css";
-import ImageUploadCard from "../components/ImageUploadCard";
-import MediaUploadCard from "../components/MediaUploadCard"
+import MediaUploadCard from "../components/MediaUploadCard";
 import { MdOutlineFilePresent } from "react-icons/md";
-import EmojiPicker from "emoji-picker-react"; // Import the EmojiPicker
+import { fetchEnrolledCourses } from "../Redux/Slices/enrollmentSlice";
+import EmojiPicker from "emoji-picker-react";
 
-// File upload
-export const handleUploadMedia = async (formData) => {
-  try {
-    const response = await api.post("chat/upload/", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    const { file_url } = response.data;
-    
-    return file_url;
-  } catch (error) {
-    console.error("Error uploading media:", error);
-  }
+export const handleFileUpload = (file) => {
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  return new Promise((resolve, reject) => {
+    reader.onload = () => {
+      const base64Data = reader.result.split(",")[1];
+      const payload = {
+        type: "file_upload",
+        filename: file.name,
+        mimetype: file.type,
+        data: base64Data,
+      };
+      console.log(JSON.stringify(payload), "decoded");
+      resolve(payload);
+    };
+
+    reader.onerror = (error) => {
+      reject(error);
+    };
+
+    reader.readAsDataURL(file);
+  });
 };
 
 const Chat = ({ token }) => {
@@ -37,31 +47,32 @@ const Chat = ({ token }) => {
   const chatSocketRef = useRef(null);
   const chatBoxRef = useRef(null);
   const [showCourses, setShowCourses] = useState(true);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false); // State for emoji picker visibility
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const auth = useSelector((state) => state.auth);
   const name = useSelector((state) => state.profile.name);
   const [roomName, setroomName] = useState("testroom");
-  const { data, loading, error } = useSelector((state) => state.enrollments);
+  const [displayname, setDisplayname] = useState("testroom");
   const userId = useSelector((state) => state.auth.user.id);
-
-  const filteredEnrollments = data?.filter((enrollment) => enrollment.user.id === userId);
-  const courses = filteredEnrollments?.map((enrollment) => enrollment.course);
-
-  
+  const dispatch = useDispatch();
+  const { courses } = useSelector((state) => state.enrollments);
+  const [mediaLoading, setMediaLoading] = useState({});
+  const [loadedMedia, setLoadedMedia] = useState({});
 
   useEffect(() => {
     const chatSocket = new WebSocket(
       `ws://127.0.0.1:8000/ws/chat/${roomName}/?token=${token}`
     );
-
+    dispatch(fetchEnrolledCourses());
     chatSocketRef.current = chatSocket;
     fetchProfiles();
     fetchMessages();
 
     chatSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data);
-
+      console.log(`dta`, data);
+      if (data.file_url) {
+        setLoadedMedia((prev) => ({ ...prev, [data.timestamp]: false }));
+      }
       setAllMessages((prev) => [
         ...prev,
         {
@@ -80,17 +91,16 @@ const Chat = ({ token }) => {
     return () => {
       chatSocket.close();
     };
-  }, [roomName, token]);
+  }, [roomName, token, dispatch]);
 
-  // Auto-scroll to bottom when new messages are added
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTo({
         top: chatBoxRef.current.scrollHeight,
-        behavior: "smooth", // Smooth scrolling
+        behavior: "smooth",
       });
     }
-  }, [allMessages, handleUploadMedia]); // Triggered whenever `allMessages` changes
+  }, [allMessages, loadedMedia]);
 
   const fetchProfiles = async () => {
     try {
@@ -109,7 +119,45 @@ const Chat = ({ token }) => {
           "Content-Type": "application/json",
         },
       });
-      setAllMessages(response.data.reverse());
+
+      const parsedMessages = response.data.map((msg) => {
+        let fixedFileUrl = msg.file_url;
+
+        if (
+          typeof fixedFileUrl === "string" &&
+          fixedFileUrl.trim().startsWith("{")
+        ) {
+          try {
+            fixedFileUrl = JSON.parse(fixedFileUrl.replace(/'/g, '"'));
+          } catch (e) {
+            console.warn("Failed to parse file_url:", fixedFileUrl);
+          }
+        }
+
+        return {
+          ...msg,
+          file_url: fixedFileUrl,
+        };
+      });
+
+      const initialLoaded = {};
+      parsedMessages.forEach(msg => {
+        if (msg.file_url) {
+          initialLoaded[msg.timestamp] = msg.sender_name === name;
+        }
+      });
+      
+      setLoadedMedia(initialLoaded);
+      
+      const initialLoading = parsedMessages.reduce((acc, msg) => {
+        if (msg.file_url && msg.sender_name === name) {
+          acc[msg.timestamp] = false;
+        }
+        return acc;
+      }, {});
+      
+      setMediaLoading(initialLoading);
+      setAllMessages(parsedMessages.reverse());
     } catch (error) {
       console.error("Error fetching messages:", error);
     }
@@ -117,22 +165,47 @@ const Chat = ({ token }) => {
 
   const sendMessage = () => {
     if (chatSocketRef.current) {
-      const newMessage = {
+      const trimmedMessage = message.trim();
+      const timestamp = new Date().toISOString();
+
+      const baseMessage = {
         sender_name: name || "Unknown",
-        message: message.trim() || "",
-        file_url: filrUrl,
-        timestamp: new Date().toISOString(),
+        message: trimmedMessage || "",
+        timestamp: timestamp,
       };
-      if (message.trim() && ws.current) {
-        const newMessage = {
-          sender_name: name || "Unknown",
-          message: message.trim() || "",
-          timestamp: new Date().toISOString(),
+
+      if (filrUrl && typeof filrUrl === "object" && filrUrl.data) {
+        console.log("file uploaded");
+
+        const fileMessage = {
+          ...baseMessage,
+          type: "file_upload",
+          file: {
+            filename: filrUrl.filename || "file.jpg",
+            mimetype: filrUrl.mimetype || "application/octet-stream",
+            data: filrUrl.data,
+          },
         };
-        ws.current.send(JSON.stringify(newMessage));
+        
+        setMediaLoading((prev) => ({ ...prev, [timestamp]: true }));
+        setLoadedMedia((prev) => ({ ...prev, [timestamp]: false }));
+        
+        chatSocketRef.current.send(JSON.stringify(fileMessage));
+        
+        setTimeout(() => {
+          setMediaLoading((prev) => ({ ...prev, [timestamp]: false }));
+          setLoadedMedia((prev) => ({ ...prev, [timestamp]: true }));
+        }, 1500);
+      } else {
+        const textMessage = {
+          ...baseMessage,
+          type: "text",
+          file_url: "",
+        };
+
+        chatSocketRef.current.send(JSON.stringify(textMessage));
       }
 
-      chatSocketRef.current.send(JSON.stringify(newMessage));
       setMessage("");
       setFileUrl("");
     }
@@ -153,19 +226,155 @@ const Chat = ({ token }) => {
     setSearchInput(e.target.value);
   };
 
-  // Function to get the profile image of a user
   const getProfileImage = (username) => {
     const userProfile = profile.find((p) => p.username === username);
-    return userProfile?.profile_picture || "https://bootdey.com/img/Content/avatar/avatar7.png"; // Default image
+    return (
+      userProfile?.profile_picture ||
+      "https://bootdey.com/img/Content/avatar/avatar7.png"
+    );
   };
 
-  // Function to handle emoji selection
   const onEmojiClick = (emojiObject) => {
     setMessage((prevMessage) => prevMessage + emojiObject.emoji);
-    setShowEmojiPicker(false); // Hide the emoji picker after selection
+    setShowEmojiPicker(false);
   };
-  console.log(`url`,filrUrl);
-  
+
+  const handleMediaClick = (timestamp) => {
+    setLoadedMedia((prev) => ({ ...prev, [timestamp]: true }));
+  };
+
+  const renderMediaPlaceholder = (message) => {
+    const isImage = message.file_url?.mimetype?.startsWith("image/") || 
+                   (typeof message.file_url === "string" && 
+                   message.file_url.match(/\.(jpg|jpeg|png|gif|webp)$/i));
+    
+    const isVideo = message.file_url?.mimetype?.startsWith("video/") || 
+                   (typeof message.file_url === "string" && 
+                   message.file_url.match(/\.(mp4|webm|ogg|mov)$/i));
+
+    return (
+      <div 
+        className="media-placeholder" 
+        onClick={() => handleMediaClick(message.timestamp)}
+        style={{
+          width: '200px',
+          height: '150px',
+          backgroundColor: '#f0f0f0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          marginTop: '8px',
+          flexDirection: 'column'
+        }}
+      >
+        <MdOutlineFilePresent size={40} />
+        <div style={{ marginTop: '8px' }}>
+          {isImage ? 'Click to view image' : 
+           isVideo ? 'Click to view video' : 'Click to view file'}
+        </div>
+      </div>
+    );
+  };
+
+  const renderMedia = (message) => {
+    if (mediaLoading[message.timestamp]) {
+      return (
+        <div style={{ 
+          width: '200px',
+          height: '150px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div className="spinner-border text-primary" role="status">
+            <span className="sr-only">Loading...</span>
+          </div>
+        </div>
+      );
+    }
+
+    if (typeof message.file_url === "object" && message.file_url.data) {
+      const { mimetype, data } = message.file_url;
+      const base64Url = `data:${mimetype};base64,${data}`;
+
+      return (
+        <div style={{ marginTop: '8px' }}>
+          {mimetype.startsWith("image/") ? (
+            <img
+              src={base64Url}
+              alt="media"
+              style={{
+                maxWidth: "45%",
+                height: "auto",
+                borderRadius: "8px"
+              }}
+            />
+          ) : mimetype.startsWith("video/") ? (
+            <video
+              controls
+              style={{
+                maxWidth: "45%",
+                height: "auto",
+                borderRadius: "8px"
+              }}
+              src={base64Url}
+            />
+          ) : (
+            <a 
+              href={base64Url} 
+              download={message.file_url.filename || "file"}
+              style={{ display: 'block', marginTop: '8px' }}
+            >
+              <MdOutlineFilePresent size={24} />
+              <span style={{ marginLeft: '8px' }}>
+                {message.file_url.filename || "Download file"}
+              </span>
+            </a>
+          )}
+        </div>
+      );
+    } else if (typeof message.file_url === "string") {
+      const fileUrl = message.file_url;
+      
+      return (
+        <div style={{ marginTop: '8px' }}>
+          {fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+            <img
+              src={fileUrl}
+              alt="media"
+              style={{
+                maxWidth: "45%",
+                height: "auto",
+                borderRadius: "8px"
+              }}
+            />
+          ) : fileUrl.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+            <video
+              controls
+              style={{
+                maxWidth: "45%",
+                height: "auto",
+                borderRadius: "8px"
+              }}
+              src={fileUrl}
+            />
+          ) : (
+            <a 
+              href={fileUrl} 
+              download
+              style={{ display: 'block', marginTop: '8px' }}
+            >
+              <MdOutlineFilePresent size={24} />
+              <span style={{ marginLeft: '8px' }}>Download file</span>
+            </a>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <main className="content" style={{ marginTop: "30px" }}>
@@ -187,57 +396,60 @@ const Chat = ({ token }) => {
                   </div>
                 </div>
               </div>
-              {showCourses ? (
-                courses.map((course) => (
-                  <a
-                    href="#"
-                    className="list-group-item list-group-item-action border-0"
-                    key={course.id}
-                  >
-                    <div className="d-flex align-items-start">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar7.png"
-                        className="rounded-circle mr-1"
-                        alt={course.title}
-                        width={40}
-                        height={40}
-                        onClick={() => setroomName(course.title)}
-                      />
-                      <div className="flex-grow-1 ml-3">
-                        {course.title}
-                        <div className="small">
-                          <span className="fas fa-circle chat-offline" /> Offline
+              {showCourses
+                ? courses.map((course) => (
+                    <a
+                      href="#"
+                      className="list-group-item list-group-item-action border-0"
+                      key={course.id}
+                    >
+                      <div className="d-flex align-items-start">
+                        <img
+                          src="https://bootdey.com/img/Content/avatar/avatar7.png"
+                          className="rounded-circle mr-1"
+                          alt={course.title}
+                          width={40}
+                          height={40}
+                          onClick={() => {
+                            setroomName(course.id),
+                              setDisplayname(course.title);
+                          }}
+                        />
+                        <div className="flex-grow-1 ml-3">
+                          {course.title}
+                          <div className="small">
+                            <span className="fas fa-circle chat-offline" />{" "}
+                            Offline
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </a>
-                ))
-              ) : (
-                profile.map((pro) => (
-                  <a
-                    href="#"
-                    className="list-group-item list-group-item-action border-0"
-                    key={pro.id}
-                  >
-                    <div className="d-flex align-items-start">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar7.png"
-                        className="rounded-circle mr-1"
-                        alt={pro.username}
-                        width={40}
-                        height={40}
-                        onClick={() => setRecipientId(pro.id)}
-                      />
-                      <div className="flex-grow-1 ml-3">
-                        {pro.username}
-                        <div className="small">
-                          <span className="fas fa-circle chat-offline" /> Offline
+                    </a>
+                  ))
+                : profile.map((pro) => (
+                    <a
+                      href="#"
+                      className="list-group-item list-group-item-action border-0"
+                      key={pro.id}
+                    >
+                      <div className="d-flex align-items-start">
+                        <img
+                          src="https://bootdey.com/img/Content/avatar/avatar7.png"
+                          className="rounded-circle mr-1"
+                          alt={pro.username}
+                          width={40}
+                          height={40}
+                          onClick={() => setRecipientId(pro.id)}
+                        />
+                        <div className="flex-grow-1 ml-3">
+                          {pro.username}
+                          <div className="small">
+                            <span className="fas fa-circle chat-offline" />{" "}
+                            Offline
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </a>
-                ))
-              )}
+                    </a>
+                  ))}
               <hr className="d-block d-lg-none mt-1 mb-0" />
             </div>
             <div className="col-12 col-lg-7 col-xl-9">
@@ -253,7 +465,7 @@ const Chat = ({ token }) => {
                     />
                   </div>
                   <div className="flex-grow-1 pl-3">
-                    <strong>{roomName}</strong>
+                    <strong>{displayname}</strong>
                     <div className="text-muted small">
                       <em>Online</em>
                     </div>
@@ -341,19 +553,12 @@ const Chat = ({ token }) => {
                           <div className="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
                             <div className="font-weight-bold mb-1">You</div>
                             {message.message}
+                            {message.file_url && (
+                              loadedMedia[message.timestamp] ? 
+                                renderMedia(message) : 
+                                renderMediaPlaceholder(message)
+                            )}
                           </div>
-                          {message.file_url && (
-                            <img
-                              src={message.file_url}
-                              alt="media"
-                              style={{
-                                maxWidth: "45%",
-                                height: "auto",
-                                borderRadius: "8px",
-                                marginTop: "8px",
-                              }}
-                            />
-                          )}
                         </div>
                       ) : (
                         <div className="chat-message-left pb-4">
@@ -374,19 +579,12 @@ const Chat = ({ token }) => {
                               {message.sender_name}
                             </div>
                             {message.message}
+                            {message.file_url && (
+                              loadedMedia[message.timestamp] ? 
+                                renderMedia(message) : 
+                                renderMediaPlaceholder(message)
+                            )}
                           </div>
-                          {message.file_url && (
-                            <img
-                              src={message.file_url}
-                              alt="media"
-                              style={{
-                                maxWidth: "45%",
-                                height: "auto",
-                                borderRadius: "8px",
-                                marginTop: "8px",
-                              }}
-                            />
-                          )}
                         </div>
                       )}
                     </div>
@@ -394,18 +592,22 @@ const Chat = ({ token }) => {
                 </div>
               </div>
 
-              {/* Emoji Picker */}
               {showEmojiPicker && (
                 <div className="emoji-picker-container">
                   <EmojiPicker onEmojiClick={onEmojiClick} />
                 </div>
               )}
 
-              <div className={`card-container ${showCard ? "visible" : ""}`}>
-                {showCard && (
-                  // <ImageUploadCard setFileUrl={setFileUrl} sendFile={handlefilesend} />
-                  <MediaUploadCard handlefilesend={handlefilesend} setFileUrl={setFileUrl}/>
-                )}
+              <div
+                style={{
+                  position: "relative",
+                  display: showCard ? "block" : "none",
+                }}
+              >
+                <MediaUploadCard
+                  handlefilesend={handlefilesend}
+                  setFileUrl={setFileUrl}
+                />
               </div>
 
               <div className="flex-grow-0 py-3 px-4 border-top">

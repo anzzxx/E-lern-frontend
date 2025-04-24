@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-
 import api from '../api'
 
 
 
 // Async action to fetch tests from the backend
-export const fetchTests = createAsyncThunk("tests/fetchTests", async (_, { rejectWithValue }) => {
+export const fetchTests = createAsyncThunk("tests/fetchTests", async (courseId, { rejectWithValue }) => {
     try {
-        const response = await api.get("mcq/tests", {
+        
+        const response = await api.get(`mcq/tests/${courseId}/`, {
            
         });
         return response.data;
@@ -16,29 +16,32 @@ export const fetchTests = createAsyncThunk("tests/fetchTests", async (_, { rejec
     }
 });
 
-// Slice
 const testSlice = createSlice({
-    name: "tests",
+    name: 'tests',
     initialState: {
         data: [],
-        status: "idle", // idle | loading | succeeded | failed
-        error: null,
+        status: 'idle',
+        error: null
     },
-    reducers: {},
+    reducers: {
+        // ... your other reducers
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchTests.pending, (state) => {
-                state.status = "loading";
+                state.status = 'loading';
             })
             .addCase(fetchTests.fulfilled, (state, action) => {
-                state.status = "succeeded";
-                state.data = action.payload;
+                state.status = 'succeeded';
+                // Always replace data with the response (which might be empty array)
+                state.data = action.payload || [];
+                state.error = null;
             })
             .addCase(fetchTests.rejected, (state, action) => {
-                state.status = "failed";
+                state.status = 'failed';
                 state.error = action.payload;
             });
-    },
+    }
 });
 
 // Export the reducer

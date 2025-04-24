@@ -5,9 +5,9 @@ import api from'../api'
 // Async action to fetch questions
 export const fetchQuestions = createAsyncThunk(
     "questions/fetchQuestions",
-    async (_, { rejectWithValue }) => {
+    async (testId, { rejectWithValue }) => {
         try {
-            const response = await api.get("mcq/questions/", {
+            const response = await api.get(`mcq/questions/${testId}`, {
             });
             return response.data;
         } catch (error) {

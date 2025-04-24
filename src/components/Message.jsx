@@ -2,7 +2,7 @@ import React, { useState,useEffect } from "react";
 import "../styles/message.css"; // Import the CSS for styling
 
 
-const Message = ({ message, duration = 5000, type = "success", onHide }) => {
+const Message = ({ message, duration = 1500, type = "success", onHide }) => {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {

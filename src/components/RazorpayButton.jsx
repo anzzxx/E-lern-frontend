@@ -85,9 +85,9 @@ const RazorpayButton = ({ amount, courseId, userId }) => {
       size="lg" // Button size (lg for large, sm for small)
       onClick={handlePayment}
       className="mt-3" // Add margin-top
-      style={{ width: "570px" }}
+      style={{ width: "470px",backgroundColor: "#3dcbb1", }}
     >
-      Pay ₹{(amount / 100).toFixed(2)} {/* Convert paise to rupees */}
+      Pay ₹{(amount ).toFixed(2)} {/* Convert paise to rupees */}
     </Button>
   );
 };

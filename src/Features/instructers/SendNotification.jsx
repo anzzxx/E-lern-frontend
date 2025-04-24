@@ -30,9 +30,8 @@ function SendNotification() {
   const menuItems = [
     { label: "Dashboard", path: "/instructor/" },
     { label: "Courses", path: "/instructor/course" },
-    { label: "Lessons", path: "/instructor/lessons" },
     { label: "Notification", path: "/instructor/notification" },
-    { label: "MCQ-Test", path: "/instructor/mcq-test" },
+    { label: "Payment History", path: "/instructor/payment/details" },
     { label: "Logout", onClick: handleLogout },
   ];
 

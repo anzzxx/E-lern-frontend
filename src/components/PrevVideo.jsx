@@ -1,20 +1,20 @@
 import React, { useRef, useState, useEffect } from "react";
 import { FaPlay } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchCourses } from "../Redux/Slices/CoursesSlice";
+import { fetchAllCourses } from "../Redux/Slices/CoursesSlice";
 import { useParams } from "react-router-dom";
 import "../styles/videoplyer.css";
 
 const PrevVideoPlayer = () => {
   const dispatch = useDispatch();
   const { id } = useParams();
-  const { courses } = useSelector((state) => state.courses);
+  const { allCourses } = useSelector((state) => state.courses);
 
   useEffect(() => {
-    dispatch(fetchCourses());
+    dispatch(fetchAllCourses());
   }, [dispatch]);
 
-  const selectedCourse = courses?.find((course) => course.id.toString() === id);
+  const selectedCourse = allCourses?.find((course) => course.id.toString() === id);
 
   // Process URLs
   const videoUrl = selectedCourse?.preview_video?.replace("video/upload/", "") || "";

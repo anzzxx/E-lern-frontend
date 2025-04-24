@@ -2,15 +2,16 @@ import React, { useEffect } from 'react';
 import '../styles/sidebar.css';
 import Sidebar from '../components/Sidebar';
 import LastWeekActivity from "../components/LastWeekActivity";
-
+import { fetchStudentProgress } from '../Redux/Slices/studentProgressSlice';
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEnrollments } from "../Redux/Slices/enrollmentSlice";
+import { fetchEnrolledCourses } from "../Redux/Slices/enrollmentSlice";
 function Mycourses() {
   const dispatch = useDispatch();
   
   
   useEffect(()=>{
-    dispatch(fetchEnrollments());
+    dispatch(fetchEnrolledCourses());
+    dispatch(fetchStudentProgress());
   },[dispatch])
  
  

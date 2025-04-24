@@ -4,84 +4,146 @@ import { useDispatch, useSelector } from "react-redux";
 import api from '../Redux/api';
 import { useParams } from "react-router-dom";
 import { fetchReviews } from "../Redux/Slices/reviewSlice";
+import { Button, Popconfirm, message } from 'antd';
+import { EllipsisOutlined } from '@ant-design/icons';
 
 const ShowReview = () => {
   const { id } = useParams();
-  const courseId = Number(id); // Convert id to a number
+  const courseId = Number(id);
   const dispatch = useDispatch();
   const reviews = useSelector((state) => state.reviews.reviews);
-  const [rating, setRating] = useState(0); // State for star rating
+  const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
+  const [editingReviewId, setEditingReviewId] = useState(null);
+  const [editComment, setEditComment] = useState("");
+  const [editRating, setEditRating] = useState(0);
+  const [openMenuId, setOpenMenuId] = useState(null);
 
   const IsAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  const BASE_URL="http://127.0.0.1:8000"
-  // Find if user is enrolled
+  const BASE_URL = "http://127.0.0.1:8000";
+  
   const user = useSelector((state) => state.auth.user);
   const userId = user ? user.id : null;
 
-  const { data } = useSelector((state) => state.enrollments);
-  const filteredEnrollments = userId
-    ? data?.filter((enrollment) => enrollment.user.id === userId)
-    : [];
+  const { courses } = useSelector((state) => state.enrollments);
+  const Enrolled = courses?.some(course => course.id.toString() === id) || false;
 
-  const enrolledCourses = filteredEnrollments?.map((enrollment) => enrollment.course);
-  const Enrolled = enrolledCourses.some(course => course.id === courseId); // Fix: Convert courseId to number
-
-  // Function to handle star click
-  const handleStarClick = (index) => {
-    setRating(index + 1);
+  // Toggle menu visibility
+  const toggleMenu = (reviewId, e) => {
+    e.stopPropagation();
+    setOpenMenuId(openMenuId === reviewId ? null : reviewId);
   };
 
-  // Handle review submission
+  // Close menu when clicking elsewhere
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setOpenMenuId(null);
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
+  // Star rating handlers
+  const handleStarClick = (index) => setRating(index + 1);
+  const handleEditStarClick = (index) => setEditRating(index + 1);
+
+  // Review submission
   const handleSubmit = useCallback(async () => {
     if (!rating || !comment) {
-      alert("Please enter a rating and comment.");
+      message.warning("Please enter a rating and comment.");
       return;
     }
 
     setLoading(true);
     try {
-      const response = await api.post("reviews/create/", {
+      await api.post("reviews/create/", {
         course: courseId,
-        rating: rating, // Use the selected star rating
+        rating: rating,
         comment: comment,
       });
 
-      console.log("Review submitted:", response.data);
-      alert("Review submitted successfully!");
-
-      // Clear input fields
+      message.success("Review submitted successfully!");
       setRating(0);
       setComment("");
-
-      // Fetch reviews again to update the list
       dispatch(fetchReviews());
     } catch (error) {
       console.error("Error submitting review:", error);
-      alert("Failed to submit review. Please try again.");
+      message.error("Failed to submit review. Please try again.");
     } finally {
       setLoading(false);
     }
   }, [rating, comment, courseId, dispatch]);
 
-  // Fetch reviews when the component mounts
+  // Review update
+  const handleUpdate = async (reviewId) => {
+    if (!editRating || !editComment) {
+      message.warning("Please enter a rating and comment.");
+      return;
+    }
+
+    try {
+      await api.put(`reviews/edit-update/${reviewId}/`, {
+        course: courseId,
+        rating: editRating,
+        comment: editComment,
+      });
+
+      message.success("Review updated successfully!");
+      setEditingReviewId(null);
+      setEditComment("");
+      setEditRating(0);
+      dispatch(fetchReviews());
+    } catch (error) {
+      console.error("Error updating review:", error);
+      message.error("Failed to update review. Please try again.");
+    }
+  };
+
+  // Review deletion
+  const handleDelete = async (reviewId) => {
+    try {
+      await api.delete(`reviews/edit-update/${reviewId}/`);
+      message.success("Review deleted successfully!");
+      dispatch(fetchReviews());
+    } catch (error) {
+      console.error("Error deleting review:", error);
+      message.error("Failed to delete review. Please try again.");
+    }
+  };
+
+  // Start editing a review
+  const startEditing = (review) => {
+    setEditingReviewId(review.id);
+    setEditComment(review.comment);
+    setEditRating(review.rating);
+    setOpenMenuId(null);
+  };
+
+  // Cancel editing
+  const cancelEditing = () => {
+    setEditingReviewId(null);
+    setEditComment("");
+    setEditRating(0);
+  };
+
+  // Fetch reviews on mount
   useEffect(() => {
     dispatch(fetchReviews());
   }, [dispatch]);
 
-  // Transform reviews for display
-  console.log(reviews);
-  
+  // Transform reviews data
   const transformedReviews = reviews
-    .filter((review) => review.course === courseId) // Filter reviews for the current course
+    .filter((review) => review.course === courseId)
     .map((review) => ({
       id: review.id,
       name: review.user_details.username,
-      avatar:
-      review.user_details.profile
-        ? `${BASE_URL}${review.user_details.profile}` // Use BASE_URL + profile path
-        : `https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250`, // Default Gravatar
+      userId: review.user_details.id,
+      avatar: review.user_details.profile
+        ? `${BASE_URL}${review.user_details.profile}`
+        : `https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250`,
       rating: review.rating,
       comment: review.comment,
       date: new Date(review.created_at).toLocaleDateString("en-US", {
@@ -95,7 +157,7 @@ const ShowReview = () => {
     <div className="review-container">
       <h2 className="review-title">Student Reviews</h2>
 
-      {/* Show review post box only if user is authenticated and enrolled */}
+      {/* Review submission form */}
       {IsAuthenticated && Enrolled && (
         <div className="review-post-box">
           <textarea
@@ -106,7 +168,6 @@ const ShowReview = () => {
             onChange={(e) => setComment(e.target.value)}
           ></textarea>
           <div className="review-post-actions">
-            {/* Star Rating System */}
             <div className="star-rating">
               {[...Array(5)].map((_, index) => (
                 <span
@@ -118,28 +179,109 @@ const ShowReview = () => {
                 </span>
               ))}
             </div>
-            <button className="review-submit-button" onClick={handleSubmit} disabled={loading}>
+            <Button 
+              type="primary"
+              onClick={handleSubmit} 
+              loading={loading}
+            >
               {loading ? "Submitting..." : "Submit Review"}
-            </button>
+            </Button>
           </div>
         </div>
       )}
 
-      {/* Scrollable Reviews Section */}
+      {/* Reviews list */}
       <div className="reviews-scrollable">
         {transformedReviews.length > 0 ? (
           transformedReviews.map((review) => (
             <div key={review.id} className="review-card">
               <img src={review.avatar} alt={review.name} className="review-avatar" />
               <div className="review-content">
-                <h3 className="review-name">
-                  {review.name.charAt(0).toUpperCase() + review.name.slice(1)}
-                </h3>
-                <p className="review-date">{review.date}</p>
-                <div className="review-rating">
-                  {"⭐".repeat(review.rating)}
+                <div className="review-header">
+                  <h3 className="review-name">
+                    {review.name.charAt(0).toUpperCase() + review.name.slice(1)}
+                  </h3>
+                  {review.userId === userId && (
+                    <div className="review-menu-container">
+                      <Button 
+                        type="text"
+                        icon={<EllipsisOutlined />}
+                        onClick={(e) => toggleMenu(review.id, e)}
+                        className="review-menu-button"
+                      />
+                      {openMenuId === review.id && (
+                        <div className="review-menu-dropdown" onClick={(e) => e.stopPropagation()}>
+                          <Button 
+                            type="text"
+                            className="menu-item"
+                            onClick={() => startEditing(review)}
+                          >
+                            Edit
+                          </Button>
+                          <Popconfirm
+                            title="Delete this review?"
+                            description="Are you sure you want to delete this review?"
+                            onConfirm={() => handleDelete(review.id)}
+                            okText="Yes"
+                            cancelText="No"
+                          >
+                            <Button 
+                              type="text"
+                              danger
+                              className="menu-item"
+                            >
+                              Delete
+                            </Button>
+                          </Popconfirm>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <p className="review-comment">{review.comment}</p>
+                <p className="review-date">{review.date}</p>
+                
+                {editingReviewId === review.id ? (
+                  <>
+                    <div className="star-rating">
+                      {[...Array(5)].map((_, index) => (
+                        <span
+                          key={index}
+                          className={`star ${index < editRating ? "selected" : ""}`}
+                          onClick={() => handleEditStarClick(index)}
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </div>
+                    <textarea
+                      className="review-input edit-comment"
+                      value={editComment}
+                      onChange={(e) => setEditComment(e.target.value)}
+                      rows="3"
+                    />
+                    <div className="edit-actions">
+                      <Button 
+                        type="primary"
+                        onClick={() => handleUpdate(review.id)}
+                      >
+                        Save
+                      </Button>
+                      <Button 
+                        onClick={cancelEditing}
+                        style={{ marginLeft: 8 }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="review-rating">
+                      {"⭐".repeat(review.rating)}
+                    </div>
+                    <p className="review-comment">{review.comment}</p>
+                  </>
+                )}
               </div>
             </div>
           ))

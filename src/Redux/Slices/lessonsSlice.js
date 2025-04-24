@@ -3,15 +3,11 @@ import api from "../api";
 import { useSelector } from "react-redux";
 
 
-// Fetch Lessons
-export const fetchLesson = createAsyncThunk("lesson/fetchLesson", async (_, thunkAPI) => {
+// Fetch Lessons by Course ID
+export const fetchLesson = createAsyncThunk("lesson/fetchLesson", async (courseId, thunkAPI) => {
     try {
-        console.log("Fetching lessons...");
-        const response = await api.get("lessons/get-lessons/", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-        });
-        console.log(response.data);
-        return response.data; // Expecting an array
+        const response = await api.get(`lessons/get-lessons/?course_id=${courseId}`);
+        return response.data; 
     } catch (error) {
         console.error("Error fetching lessons:", error);
         return thunkAPI.rejectWithValue(error.response?.data || "An error occurred");
@@ -35,30 +31,23 @@ export const createLesson = createAsyncThunk("lesson/createLesson", async (formD
     }
 });
 
-// Update Lesson
-export const updateLesson = createAsyncThunk("lesson/updateLesson", async ({ lessonId, lessonData }, { rejectWithValue }) => {
-    try {
-        const formData = new FormData();
-        formData.append("title", lessonData.title);
-        formData.append("description", lessonData.description);
-        if (lessonData.video_file) {
-            formData.append("video_file", lessonData.video_file);
-        }
 
-        const response = await api.put(`lessons/edit-lessons/${lessonId}/`, formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-                Authorization: `Bearer ${localStorage.getItem("token")}`
-            }
+
+export const updateLesson = createAsyncThunk(
+    "lesson/updateLesson",
+    async ({ id, data }, { rejectWithValue }) => {
+      try {
+        const response = await api.patch(`lessons/edit-lessons/${id}/`, data, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          }
         });
-
         return response.data;
-    } catch (error) {
+      } catch (error) {
         return rejectWithValue(error.response?.data || "An error occurred");
+      }
     }
-});
-
-// ✅ Make sure `lessonSlice` is defined before exporting
+  );
 const lessonSlice = createSlice({
     name: "lesson",
     initialState: {

@@ -1,0 +1,80 @@
+.isidebar {
+  width: 300px;
+  height: 100vh;
+  background-color: #2c3e50;
+  color: white;
+  padding: 20px 0;
+  font-family: 'Arial', sans-serif;
+  position: fixed; /* Makes sidebar stay in place */
+  left: 0;
+  top: 50px;
+  overflow-y: auto; /* Allows scrolling if content is long */
+}
+  
+  .profile-section {
+    padding: 0 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #34495e;
+  }
+  
+  .profile-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .profile-header:hover {
+    background-color: #34495e;
+  }
+  
+  .profile-icon {
+    margin-right: 10px;
+  }
+  
+  .profile-details {
+    padding: 15px 0;
+    border-top: 1px solid #34495e;
+  }
+  
+  .profile-field {
+    margin-bottom: 10px;
+  }
+  
+  .profile-field label {
+    display: block;
+    font-size: 0.8em;
+    color: #bdc3c7;
+    margin-bottom: 3px;
+  }
+  
+  .profile-field p {
+    margin: 0;
+    font-size: 0.9em;
+  }
+  
+  .menu-section {
+    padding: 0 15px;
+  }
+  
+  .menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 5px;
+  }
+  
+  .menu-item:hover {
+    background-color: #34495e;
+  }
+  
+  .menu-item.active {
+    background-color: #3498db;
+  }
+  
+  .menu-icon {
+    margin-right: 10px;
+  }
