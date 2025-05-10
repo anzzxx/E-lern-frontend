@@ -1,6 +1,7 @@
 import React from 'react'
 import Reusablesidebar from '../../components/Reusablesidebar'
 import {handleLogout} from '../../components/Logout'
+import ElearningAdminDashboard from "./Dashboard/ElearningAdminDashboard";
 function AdminPanal() {
 
    const menuItems = [
@@ -18,6 +19,7 @@ function AdminPanal() {
   return (
     <>
      <Reusablesidebar title="E-LERN" menuItems={menuItems}/>
+     <ElearningAdminDashboard />
     </>
   )
 }

@@ -3,7 +3,8 @@ import { useSelector } from 'react-redux';
 
 const FilterCard = ({ filters, setFilters, onApplyFilters }) => {
   const { instructorCourses, isLoading, error } = useSelector((state) => state.courses);
-
+  console.log(instructorCourses,"instcourse");
+  
   // Local state to manage form inputs
   const [localFilters, setLocalFilters] = useState(filters);
 

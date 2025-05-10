@@ -6,6 +6,7 @@ import "../styles/chat.css";
 import MediaUploadCard from "../components/MediaUploadCard";
 import { MdOutlineFilePresent } from "react-icons/md";
 import { fetchEnrolledCourses } from "../Redux/Slices/enrollmentSlice";
+import { fetchInstructorCourses } from "../Redux/Slices/CoursesSlice";
 import EmojiPicker from "emoji-picker-react";
 
 export const handleFileUpload = (file) => {
@@ -37,7 +38,7 @@ export const handleFileUpload = (file) => {
 const Chat = ({ token }) => {
   const ws = useRef(null);
   const [msg, setMsg] = useState([]);
-  const [filrUrl, setFileUrl] = useState("");
+  const [fileUrl, setFileUrl] = useState("");
   const [showCard, setShowCard] = useState(false);
   const [allMessages, setAllMessages] = useState([]);
   const [recipientId, setRecipientId] = useState();
@@ -55,17 +56,28 @@ const Chat = ({ token }) => {
   const userId = useSelector((state) => state.auth.user.id);
   const dispatch = useDispatch();
   const { courses } = useSelector((state) => state.enrollments);
+  const { instructorCourses } = useSelector((state) => state.courses);
   const [mediaLoading, setMediaLoading] = useState({});
   const [loadedMedia, setLoadedMedia] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const groups = auth.role === "user" || auth.role === "admin" ? courses : instructorCourses;
 
   useEffect(() => {
     const chatSocket = new WebSocket(
       `ws://127.0.0.1:8000/ws/chat/${roomName}/?token=${token}`
     );
-    dispatch(fetchEnrolledCourses());
     chatSocketRef.current = chatSocket;
-    fetchProfiles();
-    fetchMessages();
+
+    Promise.all([dispatch(fetchInstructorCourses()), dispatch(fetchEnrolledCourses())])
+      .then(() => {
+        setIsLoading(false);
+        fetchProfiles();
+        fetchMessages();
+      })
+      .catch((error) => {
+        console.error("Error fetching courses:", error);
+        setIsLoading(false);
+      });
 
     chatSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -141,21 +153,21 @@ const Chat = ({ token }) => {
       });
 
       const initialLoaded = {};
-      parsedMessages.forEach(msg => {
+      parsedMessages.forEach((msg) => {
         if (msg.file_url) {
           initialLoaded[msg.timestamp] = msg.sender_name === name;
         }
       });
-      
+
       setLoadedMedia(initialLoaded);
-      
+
       const initialLoading = parsedMessages.reduce((acc, msg) => {
         if (msg.file_url && msg.sender_name === name) {
           acc[msg.timestamp] = false;
         }
         return acc;
       }, {});
-      
+
       setMediaLoading(initialLoading);
       setAllMessages(parsedMessages.reverse());
     } catch (error) {
@@ -174,24 +186,24 @@ const Chat = ({ token }) => {
         timestamp: timestamp,
       };
 
-      if (filrUrl && typeof filrUrl === "object" && filrUrl.data) {
+      if (fileUrl && typeof fileUrl === "object" && fileUrl.data) {
         console.log("file uploaded");
 
         const fileMessage = {
           ...baseMessage,
           type: "file_upload",
           file: {
-            filename: filrUrl.filename || "file.jpg",
-            mimetype: filrUrl.mimetype || "application/octet-stream",
-            data: filrUrl.data,
+            filename: fileUrl.filename || "file.jpg",
+            mimetype: fileUrl.mimetype || "application/octet-stream",
+            data: fileUrl.data,
           },
         };
-        
+
         setMediaLoading((prev) => ({ ...prev, [timestamp]: true }));
         setLoadedMedia((prev) => ({ ...prev, [timestamp]: false }));
-        
+
         chatSocketRef.current.send(JSON.stringify(fileMessage));
-        
+
         setTimeout(() => {
           setMediaLoading((prev) => ({ ...prev, [timestamp]: false }));
           setLoadedMedia((prev) => ({ ...prev, [timestamp]: true }));
@@ -244,35 +256,40 @@ const Chat = ({ token }) => {
   };
 
   const renderMediaPlaceholder = (message) => {
-    const isImage = message.file_url?.mimetype?.startsWith("image/") || 
-                   (typeof message.file_url === "string" && 
-                   message.file_url.match(/\.(jpg|jpeg|png|gif|webp)$/i));
-    
-    const isVideo = message.file_url?.mimetype?.startsWith("video/") || 
-                   (typeof message.file_url === "string" && 
-                   message.file_url.match(/\.(mp4|webm|ogg|mov)$/i));
+    const isImage =
+      message.file_url?.mimetype?.startsWith("image/") ||
+      (typeof message.file_url === "string" &&
+        message.file_url.match(/\.(jpg|jpeg|png|gif|webp)$/i));
+
+    const isVideo =
+      message.file_url?.mimetype?.startsWith("video/") ||
+      (typeof message.file_url === "string" &&
+        message.file_url.match(/\.(mp4|webm|ogg|mov)$/i));
 
     return (
-      <div 
-        className="media-placeholder" 
+      <div
+        className="media-placeholder"
         onClick={() => handleMediaClick(message.timestamp)}
         style={{
-          width: '200px',
-          height: '150px',
-          backgroundColor: '#f0f0f0',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          marginTop: '8px',
-          flexDirection: 'column'
+          width: "200px",
+          height: "150px",
+          backgroundColor: "#f0f0f0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "8px",
+          cursor: "pointer",
+          marginTop: "8px",
+          flexDirection: "column",
         }}
       >
         <MdOutlineFilePresent size={40} />
-        <div style={{ marginTop: '8px' }}>
-          {isImage ? 'Click to view image' : 
-           isVideo ? 'Click to view video' : 'Click to view file'}
+        <div style={{ marginTop: "8px" }}>
+          {isImage
+            ? "Click to view image"
+            : isVideo
+            ? "Click to view video"
+            : "Click to view file"}
         </div>
       </div>
     );
@@ -281,13 +298,15 @@ const Chat = ({ token }) => {
   const renderMedia = (message) => {
     if (mediaLoading[message.timestamp]) {
       return (
-        <div style={{ 
-          width: '200px',
-          height: '150px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
+        <div
+          style={{
+            width: "200px",
+            height: "150px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <div className="spinner-border text-primary" role="status">
             <span className="sr-only">Loading...</span>
           </div>
@@ -300,7 +319,7 @@ const Chat = ({ token }) => {
       const base64Url = `data:${mimetype};base64,${data}`;
 
       return (
-        <div style={{ marginTop: '8px' }}>
+        <div style={{ marginTop: "8px" }}>
           {mimetype.startsWith("image/") ? (
             <img
               src={base64Url}
@@ -308,7 +327,7 @@ const Chat = ({ token }) => {
               style={{
                 maxWidth: "45%",
                 height: "auto",
-                borderRadius: "8px"
+                borderRadius: "8px",
               }}
             />
           ) : mimetype.startsWith("video/") ? (
@@ -317,18 +336,18 @@ const Chat = ({ token }) => {
               style={{
                 maxWidth: "45%",
                 height: "auto",
-                borderRadius: "8px"
+                borderRadius: "8px",
               }}
               src={base64Url}
             />
           ) : (
-            <a 
-              href={base64Url} 
+            <a
+              href={base64Url}
               download={message.file_url.filename || "file"}
-              style={{ display: 'block', marginTop: '8px' }}
+              style={{ display: "block", marginTop: "8px" }}
             >
               <MdOutlineFilePresent size={24} />
-              <span style={{ marginLeft: '8px' }}>
+              <span style={{ marginLeft: "8px" }}>
                 {message.file_url.filename || "Download file"}
               </span>
             </a>
@@ -337,9 +356,9 @@ const Chat = ({ token }) => {
       );
     } else if (typeof message.file_url === "string") {
       const fileUrl = message.file_url;
-      
+
       return (
-        <div style={{ marginTop: '8px' }}>
+        <div style={{ marginTop: "8px" }}>
           {fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
             <img
               src={fileUrl}
@@ -347,7 +366,7 @@ const Chat = ({ token }) => {
               style={{
                 maxWidth: "45%",
                 height: "auto",
-                borderRadius: "8px"
+                borderRadius: "8px",
               }}
             />
           ) : fileUrl.match(/\.(mp4|webm|ogg|mov)$/i) ? (
@@ -356,18 +375,18 @@ const Chat = ({ token }) => {
               style={{
                 maxWidth: "45%",
                 height: "auto",
-                borderRadius: "8px"
+                borderRadius: "8px",
               }}
               src={fileUrl}
             />
           ) : (
-            <a 
-              href={fileUrl} 
+            <a
+              href={fileUrl}
               download
-              style={{ display: 'block', marginTop: '8px' }}
+              style={{ display: "block", marginTop: "8px" }}
             >
               <MdOutlineFilePresent size={24} />
-              <span style={{ marginLeft: '8px' }}>Download file</span>
+              <span style={{ marginLeft: "8px" }}>Download file</span>
             </a>
           )}
         </div>
@@ -375,6 +394,10 @@ const Chat = ({ token }) => {
     }
     return null;
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <main className="content" style={{ marginTop: "30px" }}>
@@ -396,60 +419,62 @@ const Chat = ({ token }) => {
                   </div>
                 </div>
               </div>
-              {showCourses
-                ? courses.map((course) => (
-                    <a
-                      href="#"
-                      className="list-group-item list-group-item-action border-0"
-                      key={course.id}
-                    >
-                      <div className="d-flex align-items-start">
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar7.png"
-                          className="rounded-circle mr-1"
-                          alt={course.title}
-                          width={40}
-                          height={40}
-                          onClick={() => {
-                            setroomName(course.id),
-                              setDisplayname(course.title);
-                          }}
-                        />
-                        <div className="flex-grow-1 ml-3">
-                          {course.title}
-                          <div className="small">
-                            <span className="fas fa-circle chat-offline" />{" "}
-                            Offline
-                          </div>
+              {showCourses && Array.isArray(groups) ? (
+                groups.map((course) => (
+                  <a
+                    href="#"
+                    className="list-group-item list-group-item-action border-0"
+                    key={course.id}
+                  >
+                    <div className="d-flex align-items-start">
+                      <img
+                        src="https://bootdey.com/img/Content/avatar/avatar7.png"
+                        className="rounded-circle mr-1"
+                        alt={course.title}
+                        width={40}
+                        height={40}
+                        onClick={() => {
+                          setroomName(course.id);
+                          setDisplayname(course.title);
+                        }}
+                      />
+                      <div className="flex-grow-1 ml-3">
+                        {course.title}
+                        <div className="small">
+                          <span className="fas fa-circle chat-offline" /> Offline
                         </div>
                       </div>
-                    </a>
-                  ))
-                : profile.map((pro) => (
-                    <a
-                      href="#"
-                      className="list-group-item list-group-item-action border-0"
-                      key={pro.id}
-                    >
-                      <div className="d-flex align-items-start">
-                        <img
-                          src="https://bootdey.com/img/Content/avatar/avatar7.png"
-                          className="rounded-circle mr-1"
-                          alt={pro.username}
-                          width={40}
-                          height={40}
-                          onClick={() => setRecipientId(pro.id)}
-                        />
-                        <div className="flex-grow-1 ml-3">
-                          {pro.username}
-                          <div className="small">
-                            <span className="fas fa-circle chat-offline" />{" "}
-                            Offline
-                          </div>
+                    </div>
+                  </a>
+                ))
+              ) : !showCourses ? (
+                profile.map((pro) => (
+                  <a
+                    href="#"
+                    className="list-group-item list-group-item-action border-0"
+                    key={pro.id}
+                  >
+                    <div className="d-flex align-items-start">
+                      <img
+                        src="https://bootdey.com/img/Content/avatar/avatar7.png"
+                        className="rounded-circle mr-1"
+                        alt={pro.username}
+                        width={40}
+                        height={40}
+                        onClick={() => setRecipientId(pro.id)}
+                      />
+                      <div className="flex-grow-1 ml-3">
+                        {pro.username}
+                        <div className="small">
+                          <span className="fas fa-circle chat-offline" /> Offline
                         </div>
                       </div>
-                    </a>
-                  ))}
+                    </div>
+                  </a>
+                ))
+              ) : (
+                <div>No courses available</div>
+              )}
               <hr className="d-block d-lg-none mt-1 mb-0" />
             </div>
             <div className="col-12 col-lg-7 col-xl-9">
@@ -501,14 +526,7 @@ const Chat = ({ token }) => {
                         className="feather feather-video feather-lg"
                       >
                         <polygon points="23 7 16 12 23 17 23 7" />
-                        <rect
-                          x={1}
-                          y={5}
-                          width={15}
-                          height={14}
-                          rx={2}
-                          ry={2}
-                        />
+                        <rect x={1} y={5} width={15} height={14} rx={2} ry={2} />
                       </svg>
                     </button>
                     <button className="btn btn-light border btn-lg px-3">
@@ -553,11 +571,10 @@ const Chat = ({ token }) => {
                           <div className="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
                             <div className="font-weight-bold mb-1">You</div>
                             {message.message}
-                            {message.file_url && (
-                              loadedMedia[message.timestamp] ? 
-                                renderMedia(message) : 
-                                renderMediaPlaceholder(message)
-                            )}
+                            {message.file_url &&
+                              (loadedMedia[message.timestamp]
+                                ? renderMedia(message)
+                                : renderMediaPlaceholder(message))}
                           </div>
                         </div>
                       ) : (
@@ -579,11 +596,10 @@ const Chat = ({ token }) => {
                               {message.sender_name}
                             </div>
                             {message.message}
-                            {message.file_url && (
-                              loadedMedia[message.timestamp] ? 
-                                renderMedia(message) : 
-                                renderMediaPlaceholder(message)
-                            )}
+                            {message.file_url &&
+                              (loadedMedia[message.timestamp]
+                                ? renderMedia(message)
+                                : renderMediaPlaceholder(message))}
                           </div>
                         </div>
                       )}

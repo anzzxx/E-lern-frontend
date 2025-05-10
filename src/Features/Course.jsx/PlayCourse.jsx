@@ -73,6 +73,8 @@ function PlayCourse() {
             ...formData,
             course: course.id,
         };
+        console.log(Data,"data for report");
+        
 
         try {
             const response = await api.post("course/report-course/", Data);

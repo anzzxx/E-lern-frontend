@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../../Redux/Slices/signupSlice";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../../components/Navbar";
 import "../../styles/Login.css";
 
 const Signup = () => {
@@ -50,6 +51,8 @@ const Signup = () => {
   }, [success, navigate]);
 
   return (
+    <>
+    <Navbar/>
     <div className="auth-page">
       <div className="login-container">
         <div className="form-box">
@@ -108,8 +111,8 @@ const Signup = () => {
               )}
             </button>
           </form>
-          <p className="login-link">
-            Have an account? <a href="/login">Login</a>
+          <p className="login-link" onClick={()=>navigate("/login")}>
+            Have an account? <a >Login</a>
           </p>
           {success && <p className="success-message">{success}</p>}
           {error &&
@@ -127,6 +130,7 @@ const Signup = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

@@ -1,69 +1,26 @@
+"use client";
 import React from "react";
+import styles from "../../../styles/StatsCard.module.css";
 
 const StatsCard = ({ type, icon, title, value, bgColor }) => {
+  const containerClass =
+    type === "students"
+      ? styles.containerStudents
+      : type === "course"
+      ? styles.containerCourse
+      : styles.containerDefault;
+
   return (
-    <article style={{
-      borderRadius: '0px',
-      alignSelf: 'stretch',
-      marginTop: 'auto',
-      marginBottom: 'auto',
-      width: '200px'
-    }}>
-      <div style={{
-        borderRadius: '4px',
-        backgroundColor: bgColor || 'rgba(255, 243, 237, 1)',
-        display: 'flex',
-        padding: '19px 11px',
-        flexDirection: 'column',
-        alignItems: 'stretch',
-        justifyContent: 'center',
-        ...(type === "students" || type === "course" ? {
-          '@media (max-width: 991px)': {
-            padding: '17px 20px'
-          }
-        } : {
-          '@media (max-width: 991px)': {
-            padding: '19px 11px'
-          }
-        })
-      }}>
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'stretch',
-          justifyContent: 'flex-start'
-        }}>
-          <img
-            style={{
-              aspectRatio: '1',
-              objectFit: 'contain',
-              objectPosition: 'center',
-              width: '33px',
-              alignSelf: 'center'
-            }}
-            src={icon}
-            alt={title}
-          />
-          <div style={{ marginTop: '12px', width: '100%' }}>
-            <h3 style={{
-              fontSize: '10px',
-              fontFamily: 'Poppins, -apple-system, Roboto, Helvetica, sans-serif',
-              fontWeight: 600,
-              color: 'rgba(62, 67, 95, 1)',
-              margin: 0
-            }}>
-              {title}
-            </h3>
-            <p style={{
-              fontSize: '16px',
-              fontFamily: 'Work Sans, -apple-system, Roboto, Helvetica, sans-serif',
-              fontWeight: 500,
-              textAlign: 'center',
-              margin: '6px 0 0',
-              color: 'rgba(62, 67, 95, 1)'
-            }}>
-              {value}
-            </p>
+    <article className={styles.card}>
+      <div
+        className={containerClass}
+        style={bgColor ? { backgroundColor: bgColor } : {}}
+      >
+        <div className={styles.content}>
+          <img className={styles.icon} src={icon} alt={title} />
+          <div className={styles.textWrapper}>
+            <h3 className={styles.title}>{title}</h3>
+            <p className={styles.value}>{value}</p>
           </div>
         </div>
       </div>

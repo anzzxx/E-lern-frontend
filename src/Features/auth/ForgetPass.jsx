@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../../Redux/api";
+import Navbar from "../../components/Navbar";
 import "../../styles/Login.css"; 
 
 const ForgotPassword = () => {
@@ -25,6 +26,8 @@ const ForgotPassword = () => {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="auth-page">
       <div className="login-container">
         <div className="form-box">
@@ -52,6 +55,7 @@ const ForgotPassword = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

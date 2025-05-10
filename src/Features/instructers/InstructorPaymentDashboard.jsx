@@ -21,16 +21,19 @@ const InstructorPaymentDashboard = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(fetchInstructorCourses());
     if (user?.id) {
       dispatch(fetchInstructorByUserId(user.id));
+      
     }
   }, [dispatch, user]);
 
   useEffect(() => {
+    
     if (selectedInstructor?.data?.id) {
       dispatch(fetchInstructorStats(selectedInstructor.data.id));
       dispatch(fetchInstructorPayout(selectedInstructor.data.id));
-      dispatch(fetchInstructorCourses());
+      
     }
   }, [dispatch, selectedInstructor]);
 

@@ -40,7 +40,7 @@ const Sidebar = () => {
     };
 
     fetchProfile();
-  }, [token, dispatch,image]);
+  }, [ dispatch,image]);
 
   // Handle file upload
   const handleFileChange = async (event) => {
@@ -150,9 +150,8 @@ const Sidebar = () => {
 
         <ul className="menu">
           <li>Dashboard</li>
-          <li onClick={() => navigate('join-meeting')}>Join Meeting</li>
+          <li onClick={() => navigate('/room')}>Join Meeting</li>
           <li onClick={() => navigate('my-courses/')}>My Courses</li>
-          <li>My Learning Activity</li>
           <li onClick={() => setIsModalOpen(true)}>Change Password</li>
           <li onClick={()=>{handleLogout()}}>Logout</li>
         </ul>

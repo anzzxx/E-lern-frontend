@@ -1,0 +1,261 @@
+/* styles/ProfileSidebar.module.css */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 27%;
+  margin-left: 24px;
+  margin-top: 0px;
+  max-height: 200px;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 991px) {
+  .sidebar {
+    width: 100%;
+    margin-top: 0;
+  }
+}
+
+.card {
+  border-radius: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 8px 24px rgba(146, 146, 146, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 28px 16px 60px;
+  width: 100%;
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+@media (max-width: 991px) {
+  .card {
+    margin-top: 40px;
+  }
+}
+
+/* Profile Section */
+.profileSection {
+  width: 100%;
+  font-family: Poppins, -apple-system, Roboto, Helvetica, sans-serif;
+}
+
+.profileTitle {
+  color: #1a1a1a;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.profileContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profileImage {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e0e0e0;
+  transition: transform 0.3s ease;
+}
+
+.profileImage:hover {
+  transform: scale(1.05);
+}
+
+.profileInfo {
+  flex: 1;
+}
+
+.profileName {
+  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.profileRole {
+  color: #4a4a4a;
+  font-size: 12px;
+  font-weight: 400;
+  margin: 4px 0 0;
+}
+
+/* Earnings Section */
+.earningsSection {
+  margin-top: 32px;
+  width: 100%;
+}
+
+.earningsCard {
+  border-radius: 16px;
+  background: linear-gradient(135deg, #2a2e45 0%, #4a4e69 100%);
+  padding: 20px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.earningsCard:hover {
+  transform: translateY(-4px);
+}
+
+.earningsCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.earningsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.earningsInfo {
+  flex: 1;
+}
+
+.earningsDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.earningsTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.earningsSubtitle {
+  font-size: 12px;
+  font-weight: 400;
+  color: #d1d1d1;
+  margin: 4px 0 0;
+}
+
+.chip {
+  width: 40px;
+  height: 30px;
+}
+
+.chipImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.earningsValues {
+  margin-top: 16px;
+  font-size: 24px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.withdrawButton {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background-color: #5cb086;
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.withdrawButton:hover {
+  background-color: #4a9b73;
+}
+
+/* Courses Section */
+.coursesSection {
+  margin-top: 32px;
+  width: 100%;
+}
+
+.coursesTitle {
+  color: #1a1a1a;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 16px;
+}
+
+.courseItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  gap: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.courseItem:hover {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.courseContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.courseImage {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #e0e0e0;
+}
+
+.courseInfo {
+  flex: 1;
+}
+
+.courseName {
+  color: #1a1a1a;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.coursePrice {
+  color: #4a4a4a;
+  font-size: 12px;
+  font-weight: 400;
+  margin: 4px 0 0;
+}
+
+.courseButton {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.courseButtonWebDev {
+  background-color: #dbf0ed;
+}
+
+.courseButtonWebDev:hover {
+  background-color: #c0e0db;
+}

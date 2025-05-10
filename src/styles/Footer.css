@@ -1,0 +1,130 @@
+.footer-container {
+    background-color: #1b1b1b;
+    padding: 60px 80px 30px;
+    width: 100%;
+    box-sizing: border-box;
+    color: white;
+    font-family: 'Gilroy', sans-serif;
+  }
+  
+  @media (max-width: 991px) {
+    .footer-container {
+      padding: 40px 20px;
+    }
+  }
+  
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    gap: 60px;
+    margin-bottom: 40px;
+  }
+  
+  @media (max-width: 991px) {
+    .footer-content {
+      flex-direction: column;
+      gap: 30px;
+    }
+  }
+  
+  .logo-section {
+    flex: 0.5;
+  }
+  
+  @media (max-width: 991px) {
+    .logo-section {
+      flex: 1;
+    }
+  }
+  
+  .logo-circle {
+    background-color: #3dcbb1;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 16px;
+  }
+  
+  .links-section {
+    display: flex;
+    flex-direction: row;
+    flex: 2;
+    gap: 40px;
+  }
+  
+  @media (max-width: 991px) {
+    .links-section {
+      flex-direction: column;
+      gap: 30px;
+    }
+  }
+  
+  .footer-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+  
+  .footer-column h3 {
+    margin: 0 0 16px 0;
+    font-weight: 600;
+    font-size: 16px;
+  }
+  
+  .footer-link {
+    color: #ffffffcc;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-size: 14px;
+  }
+  
+  .footer-link:hover {
+    color: #3dcbb1;
+  }
+  
+  .footer-divider {
+    border: none;
+    height: 1px;
+    background-color: #ffffff12;
+    margin: 0 0 24px 0;
+  }
+  
+  .bottom-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    font-size: 14px;
+    color: #ffffff99;
+  }
+  
+  @media (max-width: 991px) {
+    .bottom-footer {
+      flex-direction: column-reverse;
+    }
+  }
+  
+  .social-icons {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .social-icon {
+    color: #ffffff99;
+    font-size: 20px;
+    transition: color 0.2s;
+  }
+  
+  .social-icon:hover {
+    color: #3dcbb1;
+  }

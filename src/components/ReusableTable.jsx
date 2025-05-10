@@ -7,16 +7,16 @@ const ReusableTable = ({ columns, data }) => {
       <thead>
         <tr>
           {columns.map((column) => (
-            <th key={column.field}>{column.label}</th> // ✅ Corrected to <th>
+            <th key={column.field}>{column.label}</th>
           ))}
         </tr>
       </thead>
       <tbody>
-        {data.map((row, index) => (
-          <tr key={index}>
+        {data.map((row) => (
+          <tr key={row.id || row._id}> {/* Use a unique identifier from your data */}
             {columns.map((column) => (
-              <td key={column.field}>
-                {column.render ? column.render(row) : row[column.field]} {/* ✅ Now supports icons in "Action" column */}
+              <td key={`${column.field}-${row.id}`}>
+                {column.render ? column.render(row) : row[column.field]}
               </td>
             ))}
           </tr>
@@ -26,4 +26,4 @@ const ReusableTable = ({ columns, data }) => {
   );
 };
 
-export default ReusableTable;
+export default React.memo(ReusableTable);

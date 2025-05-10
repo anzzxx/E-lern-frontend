@@ -3,55 +3,41 @@ import { useSelector, useDispatch } from "react-redux";
 import { fetchInstructorCourses } from "../../Redux/Slices/CoursesSlice";
 import ReusableTable from "../../components/ReusableTable";
 import AddCourse from "../../Features/instructers/AddCourse";
-import EditCourse from "../../Features/instructers/EditCourse";
 import { PiFolderPlusBold } from "react-icons/pi";
-import { FaEdit} from "react-icons/fa";
 import { IoMdOpen } from "react-icons/io";
 import { handleLogout } from "../../components/Logout";
-import "../../styles/addcourse.css";
 import Reusablesidebar from "../../components/Reusablesidebar";
 import SearchFilter from "../../components/SearchFilter"; // Import SearchFilter component
 import ReactPaginate from "react-paginate"; // Import pagination library
 import { useNavigate } from "react-router-dom";
+import "../../styles/addcourse.css";
 
 function Course() {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const {instructorCourses } = useSelector((state) => state.courses);
+  const { instructorCourses } = useSelector((state) => state.courses);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  // const [showEditForm, setShowEditForm] = useState(false);
-  // const [selectedCourse, setSelectedCourse] = useState(null);
   const [showfilter, setShowFilter] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const courses = instructorCourses || [];
-  
+
   const user_id = useSelector((state) => state.auth.user?.id);
   const userCourses = courses.filter((course) => course.instructor && course.instructor.user_id === user_id);
-
+  console.log("user course",userCourses);
+  
   useEffect(() => {
-    dispatch(fetchInstructorCourses());
-  }, [dispatch,showAddForm]);
+    if (showAddForm) {
+      const timer = setTimeout(() => {
+        dispatch(fetchInstructorCourses());
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else {
+      dispatch(fetchInstructorCourses());
+    }
+  }, [dispatch, showAddForm]);
 
-  useEffect(() => {
-    // setFilteredCourses(userCourses);
-  }, [courses]);
 
-  // const handleEdit = (course) => {
-  //   setSelectedCourse(course);
-  //   setShowEditForm(true);
-  //   setShowFilter(false);
-  //   setShowAddForm(false);
-  // };
-
-  // const handleDelete = async (courseId) => {
-  //   try {
-  //     await api.delete(`course/courses/${courseId}/`);
-  //     dispatch(fetchCourses());
-  //   } catch (error) {
-  //     console.error("Error deleting course:", error);
-  //   }
-  // };
 
   const columns = [
     { label: "ID", field: "id" },
@@ -65,8 +51,8 @@ function Course() {
       render: (course) => (
         <div className="action-icons">
           {/* <FaEdit className="delete-icon" onClick={() => handleEdit(course)} /> */}
-          <IoMdOpen className="delete-icon" onClick={()=>navigate(`/instructor/course/${course.id}`)}/>
-          <button>Publish the Course</button>  
+          <IoMdOpen className="delete-icon" onClick={() => navigate(`/instructor/course/${course.id}`)} />
+          <button>Publish the Course</button>
         </div>
       ),
     },
@@ -118,12 +104,10 @@ function Course() {
         />
       </div>
 
-    {showAddForm && <AddCourse setShowAddForm={setShowAddForm} />}
-      {/* {showEditForm && selectedCourse && (
-        <EditCourse course={selectedCourse} onClose={() => setShowEditForm(false)} />
-      )} */}
+      {showAddForm && <AddCourse setShowAddForm={setShowAddForm} />}
 
-      {!showAddForm &&  (
+
+      {!showAddForm && (
         <>
           <ReusableTable columns={columns} data={displayedCourses} />
 

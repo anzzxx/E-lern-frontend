@@ -36,6 +36,8 @@ const ResetPassword = () => {
   };
 
   return (
+    <>
+   
     <div className="auth-page">
       <div className="login-container">
         <div className="form-box">
@@ -74,6 +76,7 @@ const ResetPassword = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

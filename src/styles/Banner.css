@@ -1,0 +1,141 @@
+/* styles/Banner.css */
+
+/* Container Styles */
+.banner-container {
+  position: relative;
+  width: 98%;
+  height: 80vh;
+  max-height: 500px;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-left: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.5s ease;
+}
+
+/* Image Styles */
+.banner-image-container {
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  transition: background-image 1s ease-in-out;
+}
+
+.banner-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4));
+  z-index: 1;
+  transition: all 0.5s ease;
+}
+
+/* Content Styles */
+.banner-content-container {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  transform: translateY(-50%);
+  text-align: left;
+  width: 40%;
+  padding: 20px;
+  z-index: 2;
+  transition: all 0.5s ease;
+}
+
+.banner-animated-content {
+  animation: fadeInUp 0.8s ease-out;
+  transition: all 0.5s ease;
+}
+
+.banner-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #fff;
+  line-height: 1.2;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.banner-description {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.banner-meta-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 1.5rem;
+}
+
+.banner-instructor {
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.banner-price {
+  color: #4CAF50;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.banner-enroll-button {
+  padding: 12px 30px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.banner-enroll-button:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Carousel Custom Styles */
+.carousel-control-prev, 
+.carousel-control-next {
+  width: 5%;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.carousel-control-prev:hover, 
+.carousel-control-next:hover {
+  opacity: 1;
+}
+
+.carousel-indicators button {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin: 0 5px;
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}

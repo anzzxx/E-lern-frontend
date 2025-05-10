@@ -38,10 +38,17 @@ import CourseDetailView from "./Features/instructers/courseDetailView";
 import InstructorPaymentDashboard from "./Features/instructers/InstructorPaymentDashboard";
 import QuizManagement from "./Features/mcqtest/QuizManagement";
 import SearchPage from "./components/SearchPage";
-import Room from "./Features/Metting/Room";
-import Join from "./Features/Metting/Join";
-import Studentjoin from "./Features/Metting/Studentjoin";
+import JoinRoom from "./Features/Metting/JoinRoom";
+import VideoCall from "./Features/Metting/VideoChatRoom ";
+import Certificate from "./components/Certificate";
+import NotFoundPage from "./components/NotFoundPage";
+import CreateMeetingButton from "./Features/instructers/CreateMeetingButton";
 
+// import Room from "./Features/Metting/Room";
+//   Join from "./Features/Metting/Join";
+// import Studentjoin from "./Features/Metting/Studentjoin";
+// import JoinScreen from "./Features/Metting/JoinScreen";
+// import VideoChat from "./Features/Metting/VideoChat";
 function App() {
   const { allCourses } = useSelector((state) => state.courses);
   // const token = useSelector((state) => state.auth.accessToken);
@@ -105,6 +112,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/course/:id" element={<CourseDetail />} />
         <Route path="/search" element={<SearchPage allCourses={allCourses} />} />
+        <Route path="*" element={<NotFoundPage/>} />
         <Route element={<PublicRoute />}>
           <Route path="login/" element={<Login />} />
           <Route path="otp-validation/" element={<OTPVerification />} />
@@ -126,8 +134,12 @@ function App() {
           <Route path="/profile/my-courses" element={<Mycourses />} />
           <Route path="/watch-course/:id" element={<CourseWatch />} />
           <Route path="mcq/test/:testID/:courseId/" element={<Mcq />} />
-          <Route path="/join/meeting/:roomName/" element={<Room />} />
-          <Route path="/profile/join-meeting" element={<Studentjoin/>}/> 
+          <Route path="profile/certificate" element={<Certificate/>} />
+ 
+          <Route path="/room" element={<JoinRoom />} />
+          <Route path="/room/join/:roomName/" element={<VideoCall/>} />
+          {/* <Route path="/join/meeting/:roomName/" element={<Room />} />
+          <Route path="/profile/join-meeting" element={<Studentjoin/>}/>  */}
 
       
         </Route>
@@ -152,7 +164,7 @@ function App() {
           <Route path="/instructor/course/manage-test/:testId/:courseId/" element={<QuizManagement />} />
           <Route path="/instructor/revenue" element={<Revenue />} />
           <Route path="/instructor/payment/details" element={<InstructorPaymentDashboard/>} />
-          <Route path="/instructor/create-meenting" element={<Join/>}/>
+          <Route path="/instructor/create-meenting" element={<CreateMeetingButton/>}/>
           
         </Route>
       </Routes>

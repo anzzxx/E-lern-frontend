@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchAnswers } from "../../Redux/Slices/AnswerSlice";
 import { fetchQuestions } from "../../Redux/Slices/QustionSlice";
 import { fetchTests } from "../../Redux/Slices/TestSlice";
 import { useDispatch, useSelector } from "react-redux";
+import api from "../../Redux/api";
 
 const QuizDetailPage = () => {
   const dispatch = useDispatch();
@@ -52,14 +52,15 @@ const QuizDetailPage = () => {
   const [quiz, setQuiz] = useState(initialQuiz);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
-    title: initialQuiz.title,
-    questions: JSON.parse(JSON.stringify(initialQuiz.questions)),
+    title: null,
+    questions: {},
   });
   const [message, setMessage] = useState({ text: "", type: "" });
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Update quiz and editForm when selectedTest or questions change
+  // Update quiz when selectedTest or questions change, but skip if editing
   useEffect(() => {
-    if (selectedTest && questions.length > 0) {
+    if (selectedTest && questions.length > 0 && !isEditing) {
       const updatedQuiz = {
         id: selectedTest.id,
         courseId: parseInt(courseId),
@@ -75,14 +76,10 @@ const QuizDetailPage = () => {
         })),
       };
       setQuiz(updatedQuiz);
-      setEditForm({
-        title: updatedQuiz.title,
-        questions: JSON.parse(JSON.stringify(updatedQuiz.questions)),
-      });
     }
-  }, [selectedTest, questions, courseId]);
+  }, [selectedTest, questions, courseId, isEditing]);
 
-  // Styles (unchanged except for button visibility)
+  // Styles
   const styles = {
     container: {
       maxWidth: "900px",
@@ -181,6 +178,8 @@ const QuizDetailPage = () => {
       fontSize: "15px",
       outline: "none",
       transition: "border-color 0.2s ease",
+      pointerEvents: "auto",
+      userSelect: "text",
     },
     editInputFocus: {
       borderColor: "#1890ff",
@@ -213,87 +212,344 @@ const QuizDetailPage = () => {
 
   // Handlers
   const handleEdit = () => {
+    console.log("Edit button clicked, setting isEditing to true");
+    // Initialize editForm with all questions and answers
+    const initialQuestions = {};
+    quiz.questions.forEach((question) => {
+      const answers = {};
+      question.answers.forEach((answer) => {
+        answers[answer.id] = {
+          text: answer.text,
+          is_correct: answer.is_correct,
+        };
+      });
+      initialQuestions[question.id] = {
+        text: question.text,
+        answers,
+      };
+    });
+    setEditForm({
+      title: quiz.title,
+      questions: initialQuestions,
+    });
     setIsEditing(true);
   };
 
-  const handleSave = () => {
-    if (!editForm.title.trim()) {
+  const handleSave = async () => {
+    setIsSaving(true);
+    // Validation
+    if (editForm.title && !editForm.title.trim()) {
       setMessage({ text: "Quiz title cannot be empty", type: "error" });
+      setIsSaving(false);
       return;
     }
-    for (let question of editForm.questions) {
-      if (!question.text.trim()) {
+
+    // Validate all questions (existing and new)
+    const allQuestionIds = new Set([
+      ...quiz.questions.map((q) => q.id.toString()),
+      ...Object.keys(editForm.questions).filter((id) => id.startsWith("new-")),
+    ]);
+
+    for (const questionId of allQuestionIds) {
+      const editedQuestion = editForm.questions[questionId];
+      const existingQuestion = quiz.questions.find((q) => q.id.toString() === questionId);
+
+      // Get question text
+      const questionText = editedQuestion?.text ?? existingQuestion?.text;
+      if (!questionText?.trim()) {
         setMessage({ text: "Question text cannot be empty", type: "error" });
+        setIsSaving(false);
         return;
       }
-      if (question.answers.length < 2) {
+
+      // Get all answers for the question
+      const editedAnswers = editedQuestion?.answers ?? {};
+      const existingAnswers = existingQuestion?.answers.reduce((acc, a) => {
+        if (!editedAnswers[a.id]) {
+          acc[a.id] = { text: a.text, is_correct: a.is_correct };
+        }
+        return acc;
+      }, {}) ?? {};
+
+      const allAnswers = { ...existingAnswers, ...editedAnswers };
+
+      if (Object.keys(allAnswers).length < 2) {
         setMessage({
           text: "Each question must have at least 2 answers",
           type: "error",
         });
+        setIsSaving(false);
         return;
       }
-      if (!question.answers.some((ans) => ans.is_correct)) {
+
+      let hasCorrectAnswer = false;
+      for (const answerId in allAnswers) {
+        const answer = allAnswers[answerId];
+        if (!answer.text?.trim()) {
+          setMessage({ text: "Answer text cannot be empty", type: "error" });
+          setIsSaving(false);
+          return;
+        }
+        if (answer.is_correct) hasCorrectAnswer = true;
+      }
+
+      if (!hasCorrectAnswer) {
         setMessage({
           text: "Each question must have one correct answer",
           type: "error",
         });
+        setIsSaving(false);
         return;
       }
-      for (let answer of question.answers) {
-        if (!answer.text.trim()) {
-          setMessage({ text: "Answer text cannot be empty", type: "error" });
-          return;
+    }
+
+    try {
+      // 1. Update test title if changed
+      let updatedQuiz = { ...quiz };
+      if (editForm.title && editForm.title !== quiz.title) {
+        const formData = new FormData();
+        formData.append("title", editForm.title);
+        const testResponse = await api.put(`/mcq/test/${testId}/`, formData);
+        updatedQuiz.title = testResponse.data.title;
+      }
+
+      // 2. Process questions and answers
+      const updatedQuestions = [...quiz.questions];
+      const newQuestions = [];
+
+      for (const questionId in editForm.questions) {
+        const questionData = editForm.questions[questionId];
+
+        if (questionId.startsWith("new-")) {
+          // Create new question
+          const questionPayload = {
+            test: testId,
+            text: questionData.text,
+          };
+          const questionResponse = await api.post("/mcq/question/create/", questionPayload);
+          const newQuestionId = questionResponse.data.id;
+
+          // Create answers for new question
+          const newAnswers = [];
+          for (const answerId in questionData.answers) {
+            const answerData = questionData.answers[answerId];
+            const answerPayload = {
+              question: newQuestionId,
+              text: answerData.text,
+              is_correct: answerData.is_correct,
+            };
+            const answerResponse = await api.post("/mcq/answer/create/", answerPayload);
+            newAnswers.push({
+              id: answerResponse.data.id,
+              text: answerResponse.data.text,
+              is_correct: answerResponse.data.is_correct,
+            });
+          }
+
+          newQuestions.push({
+            id: newQuestionId,
+            text: questionResponse.data.text,
+            answers: newAnswers,
+          });
+        } else {
+          // Update existing question
+          const questionIndex = updatedQuestions.findIndex((q) => q.id === parseInt(questionId));
+          if (questionIndex !== -1 && questionData.text !== updatedQuestions[questionIndex].text) {
+            const questionPayload = { text: questionData.text };
+            const questionResponse = await api.put(`/mcq/question/${questionId}/`, questionPayload);
+            updatedQuestions[questionIndex].text = questionResponse.data.text;
+          }
+
+          // Process answers for existing question
+          const updatedAnswers = [...(updatedQuestions[questionIndex]?.answers || [])];
+          const editedAnswers = questionData.answers;
+
+          // Update or create answers
+          for (const answerId in editedAnswers) {
+            const answerData = editedAnswers[answerId];
+            if (answerId.startsWith("new-")) {
+              // Create new answer
+              const answerPayload = {
+                question: questionId,
+                text: answerData.text,
+                is_correct: answerData.is_correct,
+              };
+              const answerResponse = await api.post("/mcq/answer/create/", answerPayload);
+              updatedAnswers.push({
+                id: answerResponse.data.id,
+                text: answerResponse.data.text,
+                is_correct: answerResponse.data.is_correct,
+              });
+            } else {
+              // Update existing answer
+              const answerIndex = updatedAnswers.findIndex((a) => a.id === parseInt(answerId));
+              if (
+                answerIndex !== -1 &&
+                (answerData.text !== updatedAnswers[answerIndex].text ||
+                  answerData.is_correct !== updatedAnswers[answerIndex].is_correct)
+              ) {
+                const answerPayload = {
+                  text: answerData.text,
+                  is_correct: answerData.is_correct,
+                };
+                const answerResponse = await api.put(`/mcq/answers/${answerId}/`, answerPayload);
+                updatedAnswers[answerIndex] = {
+                  ...updatedAnswers[answerIndex],
+                  text: answerResponse.data.text,
+                  is_correct: answerResponse.data.is_correct,
+                };
+              }
+            }
+          }
+
+          // Remove deleted answers
+          const answerIdsInEditForm = Object.keys(editedAnswers);
+          const answersToKeep = updatedAnswers.filter((a) =>
+            answerIdsInEditForm.includes(a.id.toString())
+          );
+          updatedQuestions[questionIndex].answers = answersToKeep;
         }
       }
+
+      // Update quiz state with new and updated questions
+      updatedQuiz.questions = [...updatedQuestions, ...newQuestions];
+      setQuiz(updatedQuiz);
+
+      // Reset editing state
+      setIsEditing(false);
+      setEditForm({ title: null, questions: {} });
+      setMessage({ text: "Quiz updated successfully", type: "success" });
+    } catch (error) {
+      console.error("Error updating quiz:", error);
+      let errorMessage = "Failed to update quiz";
+      if (error.response) {
+        if (error.response.status === 405) {
+          errorMessage = "Server does not allow updating answers (Method Not Allowed)";
+        } else if (error.response.status === 400) {
+          errorMessage = error.response.data.error || "Invalid data provided";
+        } else if (error.response.status === 404) {
+          errorMessage = "Answer or question not found";
+        }
+      }
+      setMessage({ text: errorMessage, type: "error" });
+    } finally {
+      setIsSaving(false);
     }
-    setQuiz({ ...quiz, title: editForm.title, questions: editForm.questions });
-    setIsEditing(false);
-    setMessage({ text: "Quiz updated successfully", type: "success" });
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    setEditForm({
-      title: quiz.title,
-      questions: JSON.parse(JSON.stringify(quiz.questions)),
-    });
+    setEditForm({ title: null, questions: {} });
     setMessage({ text: "", type: "" });
   };
 
   const handleAddQuestion = () => {
-    const newQuestion = {
-      id: Math.max(...editForm.questions.map((q) => q.id), 0) + 1,
-      text: "",
-      answers: [
-        { id: Math.random() * 10000, text: "", is_correct: true },
-        { id: Math.random() * 10000, text: "", is_correct: false },
-      ],
-    };
+    const newQuestionId = `new-${Math.random() * 10000}`;
     setEditForm({
       ...editForm,
-      questions: [...editForm.questions, newQuestion],
+      questions: {
+        ...editForm.questions,
+        [newQuestionId]: {
+          text: "",
+          answers: {
+            [`new-${Math.random() * 10000}`]: { text: "", is_correct: true },
+            [`new-${Math.random() * 10000}`]: { text: "", is_correct: false },
+          },
+        },
+      },
     });
   };
 
-  const handleQuestionChange = (qIndex, value) => {
-    const updatedQuestions = [...editForm.questions];
-    updatedQuestions[qIndex].text = value;
-    setEditForm({ ...editForm, questions: updatedQuestions });
-  };
-
-  const handleAnswerChange = (qIndex, aIndex, value) => {
-    const updatedQuestions = [...editForm.questions];
-    updatedQuestions[qIndex].answers[aIndex].text = value;
-    setEditForm({ ...editForm, questions: updatedQuestions });
-  };
-
-  const handleCorrectAnswerChange = (qIndex, aIndex) => {
-    const updatedQuestions = [...editForm.questions];
-    updatedQuestions[qIndex].answers.forEach((answer, idx) => {
-      answer.is_correct = idx === aIndex;
+  const handleAddAnswer = (questionId) => {
+    const newAnswerId = `new-${Math.random() * 10000}`;
+    setEditForm({
+      ...editForm,
+      questions: {
+        ...editForm.questions,
+        [questionId]: {
+          ...editForm.questions[questionId],
+          answers: {
+            ...editForm.questions[questionId].answers,
+            [newAnswerId]: { text: "", is_correct: false },
+          },
+        },
+      },
     });
-    setEditForm({ ...editForm, questions: updatedQuestions });
+  };
+
+  const handleQuestionChange = (questionId, value) => {
+    setEditForm({
+      ...editForm,
+      questions: {
+        ...editForm.questions,
+        [questionId]: {
+          ...editForm.questions[questionId],
+          text: value,
+        },
+      },
+    });
+  };
+
+  const handleAnswerChange = (questionId, answerId, value) => {
+    setEditForm({
+      ...editForm,
+      questions: {
+        ...editForm.questions,
+        [questionId]: {
+          ...editForm.questions[questionId],
+          answers: {
+            ...editForm.questions[questionId].answers,
+            [answerId]: {
+              ...editForm.questions[questionId].answers[answerId],
+              text: value,
+            },
+          },
+        },
+      },
+    });
+  };
+
+  const handleCorrectAnswerChange = (questionId, answerId) => {
+    const updatedAnswers = {};
+    for (const aId in editForm.questions[questionId].answers) {
+      updatedAnswers[aId] = {
+        ...editForm.questions[questionId].answers[aId],
+        is_correct: aId === answerId,
+      };
+    }
+    setEditForm({
+      ...editForm,
+      questions: {
+        ...editForm.questions,
+        [questionId]: {
+          ...editForm.questions[questionId],
+          answers: updatedAnswers,
+        },
+      },
+    });
+  };
+
+  const handleDeleteAnswer = (questionId, answerId) => {
+    const question = editForm.questions[questionId];
+    if (Object.keys(question.answers).length <= 2) {
+      setMessage({
+        text: "Each question must have at least 2 answers",
+        type: "error",
+      });
+      return;
+    }
+    setEditForm({
+      ...editForm,
+      questions: {
+        ...editForm.questions,
+        [questionId]: {
+          ...question,
+          answers: Object.fromEntries(
+            Object.entries(question.answers).filter(([id]) => id !== answerId)
+          ),
+        },
+      },
+    });
   };
 
   return (
@@ -303,10 +559,8 @@ const QuizDetailPage = () => {
         {isEditing ? (
           <input
             type="text"
-            value={editForm.title}
-            onChange={(e) =>
-              setEditForm({ ...editForm, title: e.target.value })
-            }
+            value={editForm.title ?? quiz.title}
+            onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
             style={styles.editInput}
             placeholder="Enter quiz title"
           />
@@ -317,22 +571,23 @@ const QuizDetailPage = () => {
           {isEditing ? (
             <>
               <button
-                style={{ ...styles.button, ...styles.saveButton }}
+                style={{
+                  ...styles.button,
+                  ...styles.saveButton,
+                  ...(isSaving ? { opacity: 0.6, cursor: "not-allowed" } : {}),
+                }}
                 onClick={handleSave}
-                onMouseOver={(e) => (e.currentTarget.style.opacity = "0.9")}
-                onMouseOut={(e) => (e.currentTarget.style.opacity = "1")}
+                disabled={isSaving}
+                onMouseOver={(e) => !isSaving && (e.currentTarget.style.opacity = "0.9")}
+                onMouseOut={(e) => !isSaving && (e.currentTarget.style.opacity = "1")}
               >
-                <span style={styles.icon}>💾</span> Save
+                <span style={styles.icon}>{isSaving ? "⏳" : "💾"}</span> {isSaving ? "Saving..." : "Save"}
               </button>
               <button
                 style={{ ...styles.button, ...styles.cancelButton }}
                 onClick={handleCancel}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#e8e8e8")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#f5f5f5")
-                }
+                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#e8e8e8")}
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f5")}
               >
                 <span style={styles.icon}>✖️</span> Cancel
               </button>
@@ -355,14 +610,10 @@ const QuizDetailPage = () => {
         <div
           style={{
             ...styles.message,
-            ...(message.type === "success"
-              ? styles.successMessage
-              : styles.errorMessage),
+            ...(message.type === "success" ? styles.successMessage : styles.errorMessage),
           }}
         >
-          <span style={styles.icon}>
-            {message.type === "success" ? "✅" : "⚠️"}
-          </span>
+          <span style={styles.icon}>{message.type === "success" ? "✅" : "⚠️"}</span>
           {message.text}
         </div>
       )}
@@ -370,15 +621,13 @@ const QuizDetailPage = () => {
       {/* Questions */}
       {isEditing ? (
         <div>
-          {editForm.questions.map((question, qIndex) => (
+          {quiz.questions.map((question) => (
             <div
               key={question.id}
               style={styles.questionCard}
               onMouseOver={(e) => {
-                e.currentTarget.style.transform =
-                  styles.questionCardHover.transform;
-                e.currentTarget.style.boxShadow =
-                  styles.questionCardHover.boxShadow;
+                e.currentTarget.style.transform = styles.questionCardHover.transform;
+                e.currentTarget.style.boxShadow = styles.questionCardHover.boxShadow;
               }}
               onMouseOut={(e) => {
                 e.currentTarget.style.transform = "none";
@@ -387,21 +636,19 @@ const QuizDetailPage = () => {
             >
               <input
                 type="text"
-                value={question.text}
-                onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
+                value={editForm.questions[question.id]?.text ?? question.text}
+                onChange={(e) => handleQuestionChange(question.id, e.target.value)}
                 style={styles.editInput}
-                placeholder={`Question ${qIndex + 1}`}
-                onFocus={(e) =>
-                  Object.assign(e.currentTarget.style, styles.editInputFocus)
-                }
+                placeholder={`Question`}
+                onFocus={(e) => Object.assign(e.currentTarget.style, styles.editInputFocus)}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = "#d9d9d9";
                   e.currentTarget.style.boxShadow = "none";
                 }}
               />
-              {question.answers.map((answer, aIndex) => (
+              {Object.keys(editForm.questions[question.id]?.answers || {}).map((answerId) => (
                 <div
-                  key={answer.id}
+                  key={answerId}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -412,41 +659,130 @@ const QuizDetailPage = () => {
                 >
                   <input
                     type="radio"
-                    name={`correct-answer-${qIndex}`}
-                    checked={answer.is_correct}
-                    onChange={() => handleCorrectAnswerChange(qIndex, aIndex)}
+                    name={`correct-answer-${question.id}`}
+                    checked={editForm.questions[question.id].answers[answerId].is_correct}
+                    onChange={() => handleCorrectAnswerChange(question.id, answerId)}
                     style={{ marginRight: "10px", accentColor: "#1890ff" }}
                   />
                   <input
                     type="text"
-                    value={answer.text}
-                    onChange={(e) =>
-                      handleAnswerChange(qIndex, aIndex, e.target.value)
-                    }
+                    value={editForm.questions[question.id].answers[answerId].text}
+                    onChange={(e) => handleAnswerChange(question.id, answerId, e.target.value)}
                     style={{ ...styles.editInput, flex: 1 }}
-                    placeholder={`Answer ${aIndex + 1}`}
-                    onFocus={(e) =>
-                      Object.assign(e.currentTarget.style, styles.editInputFocus)
-                    }
+                    placeholder={`Answer`}
+                    onFocus={(e) => Object.assign(e.currentTarget.style, styles.editInputFocus)}
                     onBlur={(e) => {
                       e.currentTarget.style.borderColor = "#d9d9d9";
                       e.currentTarget.style.boxShadow = "none";
                     }}
                   />
+                  <button
+                    style={{ ...styles.iconButton, backgroundColor: "#ff4d4f" }}
+                    onClick={() => handleDeleteAnswer(question.id, answerId)}
+                    title="Delete Answer"
+                    onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#ff7875")}
+                    onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ff4d4f")}
+                  >
+                    <span style={styles.icon}>🗑️</span>
+                  </button>
                 </div>
               ))}
+              <button
+                style={{ ...styles.iconButton, backgroundColor: "#52c41a" }}
+                onClick={() => handleAddAnswer(question.id)}
+                title="Add Answer"
+                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#73d13d")}
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#52c41a")}
+              >
+                <span style={styles.icon}>➕</span>
+              </button>
             </div>
           ))}
+          {Object.keys(editForm.questions)
+            .filter((qId) => qId.startsWith("new-"))
+            .map((questionId) => (
+              <div
+                key={questionId}
+                style={styles.questionCard}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = styles.questionCardHover.transform;
+                  e.currentTarget.style.boxShadow = styles.questionCardHover.boxShadow;
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = "none";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              >
+                <input
+                  type="text"
+                  value={editForm.questions[questionId].text}
+                  onChange={(e) => handleQuestionChange(questionId, e.target.value)}
+                  style={styles.editInput}
+                  placeholder={`Question`}
+                  onFocus={(e) => Object.assign(e.currentTarget.style, styles.editInputFocus)}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = "#d9d9d9";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                />
+                {Object.keys(editForm.questions[questionId].answers).map((answerId) => (
+                  <div
+                    key={answerId}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: "12px",
+                      gap: "10px",
+                      marginTop: "12px",
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name={`correct-answer-${questionId}`}
+                      checked={editForm.questions[questionId].answers[answerId].is_correct}
+                      onChange={() => handleCorrectAnswerChange(questionId, answerId)}
+                      style={{ marginRight: "10px", accentColor: "#1890ff" }}
+                    />
+                    <input
+                      type="text"
+                      value={editForm.questions[questionId].answers[answerId].text}
+                      onChange={(e) => handleAnswerChange(questionId, answerId, e.target.value)}
+                      style={{ ...styles.editInput, flex: 1 }}
+                      placeholder={`Answer`}
+                      onFocus={(e) => Object.assign(e.currentTarget.style, styles.editInputFocus)}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = "#d9d9d9";
+                        e.currentTarget.style.boxShadow = "none";
+                      }}
+                    />
+                    <button
+                      style={{ ...styles.iconButton, backgroundColor: "#ff4d4f" }}
+                      onClick={() => handleDeleteAnswer(questionId, answerId)}
+                      title="Delete Answer"
+                      onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#ff7875")}
+                      onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ff4d4f")}
+                    >
+                      <span style={styles.icon}>🗑️</span>
+                    </button>
+                  </div>
+                ))}
+                <button
+                  style={{ ...styles.iconButton, backgroundColor: "#52c41a" }}
+                  onClick={() => handleAddAnswer(questionId)}
+                  title="Add Answer"
+                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#73d13d")}
+                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#52c41a")}
+                >
+                  <span style={styles.icon}>➕</span>
+                </button>
+              </div>
+            ))}
           <button
             style={{ ...styles.iconButton, backgroundColor: "#52c41a" }}
             onClick={handleAddQuestion}
             title="Add Question"
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = "#73d13d")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = "#52c41a")
-            }
+            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#73d13d")}
+            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#52c41a")}
           >
             <span style={styles.icon}>➕</span>
           </button>
@@ -458,10 +794,8 @@ const QuizDetailPage = () => {
               key={question.id}
               style={styles.questionCard}
               onMouseOver={(e) => {
-                e.currentTarget.style.transform =
-                  styles.questionCardHover.transform;
-                e.currentTarget.style.boxShadow =
-                  styles.questionCardHover.boxShadow;
+                e.currentTarget.style.transform = styles.questionCardHover.transform;
+                e.currentTarget.style.boxShadow = styles.questionCardHover.boxShadow;
               }}
               onMouseOut={(e) => {
                 e.currentTarget.style.transform = "none";
@@ -493,9 +827,7 @@ const QuizDetailPage = () => {
                       readOnly
                       style={{ marginRight: "12px", accentColor: "#52c41a" }}
                     />
-                    <span style={{ fontSize: "15px", color: "#1a1a1a" }}>
-                      {answer.text}
-                    </span>
+                    <span style={{ fontSize: "15px", color: "#1a1a1a" }}>{answer.text}</span>
                   </div>
                 ))}
               </div>

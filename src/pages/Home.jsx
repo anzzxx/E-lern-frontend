@@ -11,8 +11,12 @@ import "../styles/home.css";
 import PopularInstructor from "../components/HomeComponets/PopularInstructor";
 import Footer from "../components/HomeComponets/Footer";
 import Navbar from "../components/Navbar";
-
-
+import {fetchInstructors} from "../Redux/Slices/InstructorsSlice";
+import Meett from "../Features/Metting/Room/Meett";
+import MeetingInterface from "../Features/Metting/Room/MeetingInterface";
+import Certificate from "../components/Certificate";
+import {  setName, setEmail, setImage } from "../Redux/Slices/EditProfileSlice";
+import api from "../Redux/api";
 
 const LandingPage = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -24,11 +28,31 @@ const LandingPage = () => {
   useEffect(() => {
     dispatch(fetchAllCourses());       
     dispatch(fetchReviews());
+    dispatch(fetchInstructors());
   }, [dispatch]);
+
+    // Fetch Profile Data
+    useEffect(() => {
+  
+      const fetchProfile = async () => {
+        try {
+          const response = await api.get("api/profile/update/");
+          dispatch(setName(response.data.username));
+          dispatch(setEmail(response.data.email));
+          dispatch(setImage(response.data.profile_picture));
+        } catch (error) {
+          console.error("Error fetching profile:", error);
+        }
+      };
+      if(isAuthenticated){
+        fetchProfile();
+      }
+      
+    }, [ dispatch]);
 
   // Filter only active courses (if needed)
   const activeCourses = allCourses; 
-
+  const countOfCourse=activeCourses.length
   // Function to navigate to the course details page
   const handleCourseClick = (id) => {
     navigate(`/course/${id}`);
@@ -59,7 +83,7 @@ const filterCourses = () => {
        <Banner />
        <br />
       
-      <Feature />
+      <Feature countOfCourse={countOfCourse}/>
       
       {/* <Course courses={activeCourses} onCourseClick={handleCourseClick} /> */}
 
@@ -78,6 +102,13 @@ const filterCourses = () => {
 
       
     </>
+    // <>
+    // {/* <Navbar/>
+    // <Meett/> */}
+    // <MeetingInterface/>
+    
+    // </>
+   
       
 
   );

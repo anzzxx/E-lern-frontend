@@ -1,0 +1,115 @@
+.card {
+  border-radius: 8px;
+  align-self: stretch;
+  margin: auto 0;
+  width: 210px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+  border-radius: 8px;
+  background-color: #ffffff;
+  display: flex;
+  padding: 24px 16px;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  border: 1px solid #e5e7eb;
+}
+
+.containerStudents {
+  background-color: #fef2f2;
+}
+
+@media (max-width: 991px) {
+  .containerStudents {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .containerStudents {
+    padding: 16px;
+  }
+}
+
+.containerCourse {
+  background-color: #f0fdf4;
+}
+
+@media (max-width: 991px) {
+  .containerCourse {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .containerCourse {
+    padding: 16px;
+  }
+}
+
+.containerDefault {
+  background-color: #f0f7ff;
+}
+
+@media (max-width: 991px) {
+  .containerDefault {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .containerDefault {
+    padding: 16px;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.icon {
+  aspect-ratio: 1;
+  object-fit: contain;
+  object-position: center;
+  width: 40px;
+  align-self: center;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .icon {
+  transform: scale(1.1);
+}
+
+.textWrapper {
+  margin-top: 16px;
+  width: 100%;
+  text-align: center;
+}
+
+.title {
+  font-size: 12px;
+  font-family: Poppins, -apple-system, Roboto, Helvetica, sans-serif;
+  font-weight: 600;
+  color: #1f2937;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.value {
+  font-size: 24px;
+  font-family: Work Sans, -apple-system, Roboto, Helvetica, sans-serif;
+  font-weight: 600;
+  text-align: center;
+  margin: 8px 0 0;
+  color: #111827;
+}

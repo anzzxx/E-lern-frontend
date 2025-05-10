@@ -1,0 +1,248 @@
+.mainContent {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 896px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  
+  .mainContent header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+  
+  .mainContent header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+  }
+  
+  .mainContent header h2 span {
+    font-weight: 700;
+  }
+  
+  .mainContent header p {
+    font-size: 16px;
+    color: #4b5563;
+    margin: 0;
+  }
+  
+  .statsSection {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  
+  .overviewSection {
+    margin-bottom: 32px;
+  }
+  
+  .overviewSection h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+  }
+  
+  .statsSalesSection {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .courseStats,
+  .weeklySales {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+  }
+  
+  .courseStats h3,
+  .weeklySales h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 12px;
+  }
+  
+  .courseStatsContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 16px;
+  }
+  
+  .courseStatsHeader {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  
+  .courseStatsProgress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .courseStatsProgress span:first-child {
+    width: 12px;
+    height: 12px;
+    background-color: #f87171;
+    border-radius: 2px;
+  }
+  
+  .courseStatsProgress span:last-child {
+    font-size: 14px;
+    color: #4b5563;
+  }
+  
+  .courseStatsMonthly {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f3f4f6;
+    border-radius: 4px;
+    padding: 4px 8px;
+  }
+  
+  .courseStatsMonthly span {
+    font-size: 14px;
+    color: #4b5563;
+  }
+  
+  .courseStatsMonthly img {
+    width: 4px;
+    height: 4px;
+  }
+  
+  .courseStatsChart {
+    position: relative;
+    width: 96px;
+    height: 96px;
+  }
+  
+  .courseStatsChart img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .courseStatsChart span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    font-weight: 700;
+    color: #1f2937;
+  }
+  
+  .courseStats p {
+    font-size: 14px;
+    color: #4b5563;
+    margin: 8px 0 0;
+    text-align: center;
+  }
+  
+  .weeklySalesTable {
+    background: #f9fafb;
+    border-radius: 6px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #374151;
+    font-weight: 500;
+  }
+  
+  .weeklySalesTable div {
+    display: flex;
+    gap: 24px;
+  }
+  
+  .courseItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+  }
+  
+  .courseItemDetails {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .courseItemIcon {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #ffffff;
+    font-weight: 300;
+  }
+  
+  .courseItem h4 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin: 0;
+    line-height: 1.5;
+  }
+  
+  .courseItemStats {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    font-size: 14px;
+  }
+  
+  .courseItemStats span:first-child {
+    color: #4b5563;
+    font-weight: 400;
+  }
+  
+  .courseItemStats span:last-child {
+    background: rgba(204, 234, 187, 0.25);
+    color: #6b7280;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 500;
+  }
+  
+  @media (min-width: 640px) {
+    .statsSection {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .mainContent {
+      width: 66.67%;
+      margin-left: 20px;
+      padding: 24px;
+    }
+  
+    .statsSection {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  
+    .statsSalesSection {
+      grid-template-columns: 1fr 2fr;
+    }
+  }

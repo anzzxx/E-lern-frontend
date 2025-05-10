@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {useDispatch,useSelector} from "react-redux"
 import {registerInstructor} from "../../Redux/Slices/instructorcreationslice"
-
+import Navbar from "../../components/Navbar";
 import "../../styles/Login.css";
 
 const TeachOnELERN = () => {
@@ -40,6 +40,8 @@ const TeachOnELERN = () => {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="auth-page">
     <div className="login-container">
       
@@ -77,6 +79,7 @@ const TeachOnELERN = () => {
       </div>
     </div>
     </div>
+    </>
   );
 };
 

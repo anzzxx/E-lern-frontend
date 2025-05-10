@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from "react";
-import '../styles/videoplyer.css';
 import { useSelector, useDispatch } from "react-redux";
 import { fetchAllCourses } from "../Redux/Slices/CoursesSlice";
 import { useParams } from "react-router-dom";
 import RazorpayButton from "../components/RazorpayButton";
-import { Button } from "react-bootstrap"; // Import Bootstrap Button
 import { fetchEnrolledCourses } from "../Redux/Slices/enrollmentSlice";
+import '../styles/videoplyer.css';
+
 const CourseOverview = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { allCourses, loading } = useSelector((state) => state.courses);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const user = useSelector((state) => state.auth.user);
-  const userId = user ? user.id : null;  // Fix: Avoid accessing id of null
   const { courses } = useSelector((state) => state.enrollments);
-  const { data } = useSelector((state) => state.enrollments);
   const isAuthenticated=useSelector((state)=>state.auth.isAuthenticated)
   const Enrolled = courses?.some(course => course.id.toString() === id) || false; 
 

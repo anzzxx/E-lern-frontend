@@ -24,6 +24,8 @@ import instructorSlice from "../Redux/Slices/InstructorsSlice";
 import instructorStatsReducer from '../Redux/Slices/instructorStatsSlice';
 import instructorPayoutReducer from '../Redux/Slices/instructorPayoutSlice';
 import studentProgressReducer from '../Redux/Slices/studentProgressSlice';
+import instructorDashboardReducer from '../Redux/Slices/instructorDashboardSlice';
+import courseRequestReducer from '../Redux/Slices/courseRequestSlice';
 // Combine all reducers
 const rootReducer = combineReducers({
   signup: signupReducer,
@@ -47,6 +49,8 @@ const rootReducer = combineReducers({
   instructorStats: instructorStatsReducer,
   instructorPayout: instructorPayoutReducer,
   studentProgress: studentProgressReducer,
+  instructorDashboard: instructorDashboardReducer,
+  courseRequests: courseRequestReducer,
 });
 
 // redux-persist config: persist only `auth` and `profile`

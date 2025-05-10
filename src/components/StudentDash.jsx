@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const StudentDashboard = () => {
+  const navigate = useNavigate();
   const name = useSelector((state) => state.profile.name);
   const { progressData, loading, error } = useSelector((state) => state.studentProgress);
   const { courses, stats } = useSelector((state) => state.enrollments);
@@ -24,6 +26,17 @@ const StudentDashboard = () => {
     .map((progress) => ({
       ...progress,
       courseTitle: courses.find((course) => course.id === progress.course)?.title || "Unknown Course",
+      // Mock additional data (replace with actual data from Redux or API)
+      companyLogo: "https://cdn.builder.io/api/v1/image/assets/TEMP/4f6fe8d3c65a4c26921a35c4c4c78ff73823d3ec?placeholderIfAbsent=true&apiKey=5421258326d542d8bd77b304c1f7486c",
+      companyNameLogo: "https://cdn.builder.io/api/v1/image/assets/TEMP/963b29c4787ff6a3808474d57e9ed7d684746a24?placeholderIfAbsent=true&apiKey=5421258326d542d8bd77b304c1f7486c",
+      companyName: "E-LERN App",
+      signatures: [
+        {
+          image: "https://cdn.builder.io/api/v1/image/assets/TEMP/262b6bc90212bbab769903a186f7cc7b653c05ef?placeholderIfAbsent=true&apiKey=5421258326d542d8bd77b304c1f7486c",
+          name: `Instructor for ${progress.courseTitle}`, // Dynamic instructor name
+          title: "Course Instructor",
+        },
+      ],
     })) || [];
 
   // Determine which certificates to display (first 2 or all)
@@ -53,7 +66,6 @@ const StudentDashboard = () => {
         ) : (
           <ul style={styles.list}>
             {displayedCourses.map((course) => {
-              // Find the corresponding progress data for this course
               const progress = progressData?.find((p) => p.course === course.id) || {
                 progress: "0.00",
                 is_completed: false,
@@ -183,6 +195,19 @@ const StudentDashboard = () => {
                     }}
                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
+                    onClick={() =>
+                      navigate('/profile/certificate', {
+                        state: {
+                          recipientName: name,
+                          courseTitle: progress.courseTitle,
+                          completionDescription: `For successfully completing the course on ${new Date().toLocaleDateString()}`,
+                          companyLogo: progress.companyLogo,
+                          companyNameLogo: progress.companyNameLogo,
+                          companyName: progress.companyName,
+                          signatures: progress.signatures,
+                        },
+                      })
+                    }
                   >
                     <span style={{ fontSize: "1rem" }}>↓</span>
                     Download
@@ -234,7 +259,6 @@ const styles = {
     maxWidth: "1200px",
     minWidth: "80%",
     marginLeft: "170px",
-  
     minHeight: "100vh",
   },
   header: {

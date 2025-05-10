@@ -1,45 +1,41 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from'../api'
+import api from "../api";
 
-
-// Async action to fetch questions
 export const fetchQuestions = createAsyncThunk(
-    "questions/fetchQuestions",
-    async (testId, { rejectWithValue }) => {
-        try {
-            const response = await api.get(`mcq/questions/${testId}`, {
-            });
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(error.response?.data || "An error occurred");
-        }
+  "questions/fetchQuestions",
+  async (testId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/mcq/questions/${testId}/`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to fetch questions");
     }
+  }
 );
 
-// Slice
 const questionSlice = createSlice({
-    name: "questions",
-    initialState: {
-        data: [],
-        status: "idle", // idle | loading | succeeded | failed
-        error: null,
-    },
-    reducers: {},
-    extraReducers: (builder) => {
-        builder
-            .addCase(fetchQuestions.pending, (state) => {
-                state.status = "loading";
-            })
-            .addCase(fetchQuestions.fulfilled, (state, action) => {
-                state.status = "succeeded";
-                state.data = action.payload;
-            })
-            .addCase(fetchQuestions.rejected, (state, action) => {
-                state.status = "failed";
-                state.error = action.payload;
-            });
-    },
+  name: "questions",
+  initialState: {
+    data: [],
+    loading: false,
+    error: null,
+  },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchQuestions.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchQuestions.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(fetchQuestions.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
 });
 
-// Export the reducer
 export default questionSlice.reducer;

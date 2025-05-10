@@ -8,7 +8,9 @@ const TrendingCourses = ({ apiCourses, onCourseClick }) => {
 
   const transformCourseData = (apiCourse) => {
     // Filter reviews for this specific course
-    const courseReviews = reviews.filter(review => review.course === apiCourse.id);
+    const courseReviews = reviews? reviews.filter(review => review.course === apiCourse.id): [];
+
+
     
     // Calculate average rating
     const averageRating = courseReviews.length > 0 

@@ -7,6 +7,8 @@ export const fetchInstructorCourses = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await api.get("course/courses/");
+            console.log("inst course",response.data);
+            
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response?.data || "Something went wrong");
