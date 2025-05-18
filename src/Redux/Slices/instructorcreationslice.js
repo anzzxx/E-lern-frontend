@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../api";
-import { handleLogout } from "../../components/Logout";
+
 // Define the async thunk for registering an instructor
 
 export const registerInstructor = createAsyncThunk(
@@ -9,7 +9,7 @@ export const registerInstructor = createAsyncThunk(
     try {
       
       const response = await api.post("instructor/create-instructor/", formData);
-      handleLogout()
+      
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response ? error.response.data : error.message);
