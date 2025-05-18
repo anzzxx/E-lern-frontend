@@ -1,11 +1,10 @@
 import axios from 'axios';
 import { loginSuccess, logout } from "../Redux/Slices/authSlice";
-import store from "../Redux/Store";
+import store from "./store";
 
 export const BASE_URL = 'https://api.elern.shop/';
 export const STATIC_URL = 'https://api.elern.shop';
-// http://127.0.0.1:8000
-// http://127.0.0.1:8000/
+
 const api = axios.create({
     baseURL: BASE_URL,
     headers: {
