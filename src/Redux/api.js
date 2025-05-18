@@ -1,9 +1,11 @@
 import axios from 'axios';
-import { loginSuccess } from "../Redux/Slices/authSlice";
-import  store  from "../Redux/Store";  // Import Redux store to access dispatch globally
+import { loginSuccess, logout } from "../Redux/Slices/authSlice";
+import store from "../Redux/Store";
 
-const BASE_URL = 'http://127.0.0.1:8000/';
-
+export const BASE_URL = 'https://api.elern.shop/';
+export const STATIC_URL = 'https://api.elern.shop';
+// http://127.0.0.1:8000
+// http://127.0.0.1:8000/
 const api = axios.create({
     baseURL: BASE_URL,
     headers: {
@@ -13,6 +15,15 @@ const api = axios.create({
 
 let isRefreshing = false;
 let refreshSubscribers = [];
+
+// Function to handle failed refresh and cleanup
+const handleFailedRefresh = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    store.dispatch(logout());
+    // Optional: Redirect to login page if needed
+    // window.location.href = '/login';
+};
 
 // Function to handle refresh token
 const refreshToken = async () => {
@@ -25,71 +36,82 @@ const refreshToken = async () => {
     isRefreshing = true;
     try {
         const refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) throw new Error('No refresh token found');
+        if (!refreshToken) {
+            handleFailedRefresh();
+            throw new Error('No refresh token found');
+        }
 
         const response = await axios.post(`${BASE_URL}api/token/refresh/`, {
             refresh: refreshToken,
         });
 
-        localStorage.setItem('accessToken', response.data.access);
-        localStorage.setItem('refreshToken', response.data.refresh); // Save new refresh token if rotation is enabled
-       
+        const newAccessToken = response.data.access;
+        const newRefreshToken = response.data.refresh || refreshToken;
 
-       
-        // Dispatch the new token to Redux store
+        localStorage.setItem('accessToken', newAccessToken);
+        localStorage.setItem('refreshToken', newRefreshToken);
+
+        // Dispatch the new token to Redux store (works with your existing loginSlice)
+        const currentState = store.getState().auth;
         store.dispatch(
             loginSuccess({
-                user:response.data.user, 
-                accessToken: response.data.access,
-                refreshToken: response.data.refresh,
+                user: currentState.user, // Preserve existing user data
+                accessToken: newAccessToken,
+                refreshToken: newRefreshToken,
+                role: currentState.role, // Preserve existing role
             })
         );
 
-        refreshSubscribers.forEach((callback) => callback(response.data.access));
+        // Resolve all pending requests with the new token
+        refreshSubscribers.forEach((callback) => callback(newAccessToken));
         refreshSubscribers = [];
 
-        return response.data.access;
+        return newAccessToken;
     } catch (error) {
         console.error('Token refresh failed:', error);
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        window.location.href = "/login";  // Redirect to login page
+
+        if (error.response?.status === 401 || error.response?.status === 400) {
+            console.error('Refresh token is invalid or expired');
+            handleFailedRefresh();
+        }
+
+        throw error;
     } finally {
         isRefreshing = false;
     }
 };
 
-// ✅ Attach Access Token Automatically
+// Request interceptor to attach token
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('accessToken');
     if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`;
+        config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
+}, (error) => {
+    return Promise.reject(error);
 });
 
-// ✅ Auto-Refresh Token on Expired Access Token
+// Response interceptor to handle token refresh
 api.interceptors.response.use(
     response => response,
     async error => {
         const originalRequest = error.config;
 
-        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+        // Only attempt refresh on 401 errors and not retried requests
+        if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
             try {
                 const newToken = await refreshToken();
-                if (newToken) {
-                    localStorage.setItem('accessToken', newToken);
-                    originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-                    return api(originalRequest);
-                }
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                return api(originalRequest);
             } catch (refreshError) {
-                console.error('Token refresh attempt failed:', refreshError);
-                window.location.href = "/login";  // Redirect to login page
+                return Promise.reject(refreshError);
             }
         }
 
+        // Handle other errors
         return Promise.reject(error);
     }
 );

@@ -39,7 +39,7 @@ const TrendingCourses = ({ apiCourses, onCourseClick }) => {
   };
 
   const courses = apiCourses.map(transformCourseData);
-  const COURSES_PER_ROW = 5;
+  const COURSES_PER_ROW = 4;
 
   // Split courses into chunks of 5
   const rows = [];

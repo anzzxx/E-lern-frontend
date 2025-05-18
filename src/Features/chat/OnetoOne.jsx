@@ -7,7 +7,7 @@ const ChatComponent = ({ userId, recipientId, token }) => {
  
   
   useEffect(() => {
-    ws.current = new WebSocket(`ws://127.0.0.1:8000/ws/chat/direct/${recipientId}/?token=${token}`);
+    ws.current = new WebSocket(`wss://api.elern.shop/ws/chat/direct/${recipientId}/?token=${token}`);
 
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data);

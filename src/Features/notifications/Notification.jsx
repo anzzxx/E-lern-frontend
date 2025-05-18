@@ -12,7 +12,7 @@ const useWebSocket = () => {
       return;
     }
 
-    const socket = new WebSocket(`ws://127.0.0.1:8000/ws/notify/?token=${token}`);
+    const socket = new WebSocket(`wss://api.elern.shop/ws/notify/?token=${token}`);
 
     socket.onopen = () => {
       console.log("WebSocket connected");

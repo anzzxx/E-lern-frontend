@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useSelector } from "react-redux";
+import { STATIC_URL } from "../../../Redux/api";
 
 export default function DashboardHeader() {
   const {image,name}=useSelector((state)=>state.profile)
@@ -17,7 +18,7 @@ export default function DashboardHeader() {
       <div className="header-right">
         <div className="profile-section">
           <img
-            src={image ? `http://127.0.0.1:8000${image}` : defaultImage}
+            src={image ? `${STATIC_URL}${image}` : defaultImage}
             alt="Profile"
             className="profile-image"
           />

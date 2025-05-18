@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import ReviewItem from "./ReviewItem";
+import {STATIC_URL} from "../../Redux/api";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Popconfirm, message } from 'antd';
 import { EllipsisOutlined } from '@ant-design/icons';
@@ -24,7 +25,6 @@ function CourseDescription({ selectedCourse }) {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [visibleReviewsCount, setVisibleReviewsCount] = useState(2);
 
-  const BASE_URL = "http://127.0.0.1:8000";
   const avatar = "https://cdn.builder.io/api/v1/image/assets/TEMP/caa5444b73f7b5237790d16380f02d528ae66762?placeholderIfAbsent=true&apiKey=5421258326d542d8bd77b304c1f7486c";
 
   useEffect(() => {
@@ -134,7 +134,7 @@ function CourseDescription({ selectedCourse }) {
       username: review.user_details.username,
       userId: review.user_details.id,
       profile: review.user_details.profile
-        ? `${BASE_URL}${review.user_details.profile}`
+        ? `${STATIC_URL}${review.user_details.profile}`
         : `https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250`,
       rating: review.rating,
       comment: review.comment,

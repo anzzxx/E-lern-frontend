@@ -2,13 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import api from "../Redux/api";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
-import "../styles/chat.css";
 import MediaUploadCard from "../components/MediaUploadCard";
 import { MdOutlineFilePresent } from "react-icons/md";
 import { fetchEnrolledCourses } from "../Redux/Slices/enrollmentSlice";
 import { fetchInstructorCourses } from "../Redux/Slices/CoursesSlice";
 import EmojiPicker from "emoji-picker-react";
-
+import "../styles/chat.css";
 export const handleFileUpload = (file) => {
   if (!file) return;
 
@@ -64,7 +63,7 @@ const Chat = ({ token }) => {
 
   useEffect(() => {
     const chatSocket = new WebSocket(
-      `ws://127.0.0.1:8000/ws/chat/${roomName}/?token=${token}`
+      `wss://api.elern.shop/ws/chat/${roomName}/?token=${token}`
     );
     chatSocketRef.current = chatSocket;
 

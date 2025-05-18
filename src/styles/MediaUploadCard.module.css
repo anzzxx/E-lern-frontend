@@ -1,0 +1,67 @@
+/* styles/MediaUploadCard.module.css */
+.cardContainer {
+  position: absolute;
+  bottom: 60px;
+  right: 20px;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mediaUploadCard {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  width: 200px;
+}
+
+.mediaOption {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.mediaOption:hover {
+  background-color: #f5f5f5;
+  color: #100e0e;
+}
+
+.mediaOptionLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.mediaOptionLabel span {
+  margin-left: 10px;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.sendButton {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.sendButton:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}

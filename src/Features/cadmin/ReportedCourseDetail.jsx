@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { STATIC_URL } from "../../Redux/api";
 
 const ReportedCoursePopup = ({ report, onClose }) => {
   const navigate=useNavigate()
@@ -37,7 +38,7 @@ const ReportedCoursePopup = ({ report, onClose }) => {
               <h3 style={styles.sectionTitle}>Reporter Information</h3>
             </div>
             <div style={styles.userInfo}>
-              <img src={`http://127.0.0.1:8000${report.user.avatar}`} alt="User Avatar" style={styles.avatar} />
+              <img src={`${STATIC_URL}${report.user.avatar}`} alt="User Avatar" style={styles.avatar} />
               <div style={styles.userDetails}>
                 <div style={styles.userName}>{report.user.username}</div>
                 <div style={styles.userEmail}>{report.user.email}</div>

@@ -1,13 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
-import "../styles/sidebar.css";
 import Profilebar from "../components/Profilebar";
+import { STATIC_URL } from "../Redux/api";
 import { useDispatch, useSelector } from "react-redux";
 import {  setName, setEmail, setImage } from "../Redux/Slices/EditProfileSlice";
-import "../styles/showmenu.css";
-import api from "../Redux/api";
 import {handleLogout} from "../components/Logout"
 import ChangePasswordModal from '../Features/auth/ChangePasswordModal'
 import { useNavigate } from "react-router-dom";
+import api from "../Redux/api";
+import "../styles/showmenu.css";
+import "../styles/sidebar.css";
+
 const Sidebar = () => {
   const navigate=useNavigate()
   const dispatch = useDispatch();
@@ -103,7 +105,7 @@ const Sidebar = () => {
         <div className="profile">
           <div className="image-container">
             <img
-              src={image ? `http://127.0.0.1:8000${image}` : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"}
+              src={image ? `${STATIC_URL}${image}` : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"}
               alt="Profile"
               className="profile-image"
             />
@@ -112,7 +114,7 @@ const Sidebar = () => {
               <div className="modal-overlay" onClick={() => setShowImageModal(false)}>
                 <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                   <img
-                    src={image ? `http://127.0.0.1:8000${image}` : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"}
+                    src={image ? `${STATIC_URL}${image}` : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"}
                     alt="Profile"
                     className="modal-image"
                   />

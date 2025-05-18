@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import {STATIC_URL} from "../Redux/api"
 import { jwtDecode } from "jwt-decode";
-import "../styles/navbar.css";
 import NotificationBell from "../Features/notifications/NotificationBell";
+import "../styles/navbar.css";
 
 const Navbar = () => {
   const token = useSelector((state) => state.auth.accessToken);
@@ -127,7 +128,7 @@ const Navbar = () => {
                 </div>
                 <Link to="/profile" className="avatar-button">
                   <img
-                    src={image?`http://127.0.0.1:8000${image}`:"https://cdn.builder.io/api/v1/image/assets/TEMP/53a4a16eeaca6c3e420331f5abdb865ae3ce232e?placeholderIfAbsent=true&apiKey=5421258326d542d8bd77b304c1f7486c"}
+                    src={image?`${STATIC_URL}${image}`:"https://cdn.builder.io/api/v1/image/assets/TEMP/53a4a16eeaca6c3e420331f5abdb865ae3ce232e?placeholderIfAbsent=true&apiKey=5421258326d542d8bd77b304c1f7486c"}
                     alt="User avatar"
                     className="avatar-icon"
                   />
@@ -138,7 +139,7 @@ const Navbar = () => {
                 <Link to="/login" className="instructor-button">
                   Login
                 </Link>
-                <Link to="/register" className="instructor-button">
+                <Link to="/signup" className="instructor-button">
                   Register
                 </Link>
               </>

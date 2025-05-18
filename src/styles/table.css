@@ -11,9 +11,9 @@
   }
   
   .custom-table {
-    width: 70%;  /* Reduce table width */
+    width: 76%;  /* Reduce table width */
     max-width: 1200px; /* Set a max width */
-    margin-left: 360px;
+    margin-left: 300px;
     border-collapse: collapse;
     margin-top: 50px;
     border-radius: 500px;

@@ -1,0 +1,156 @@
+/* styles/CourseProgress.module.css */
+.container {
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 20px 0;
+  background-color: #f5f6f8;
+  border-radius: 12px;
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.loadingMessage,
+.errorMessage,
+.noCoursesMessage {
+  text-align: center;
+  padding: 20px;
+  white-space: normal;
+}
+
+.loadingMessage {
+  color: #333;
+}
+
+.errorMessage {
+  color: #dc3545;
+}
+
+.noCoursesMessage {
+  color: #333;
+}
+
+.coursesContainer {
+  display: inline-flex;
+  gap: 20px;
+  padding: 0 15px;
+}
+
+.courseCard {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 20rem;
+}
+
+.card {
+  width: 20rem;
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  background-color: #fff;
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: scale(1.02);
+}
+
+.courseImage {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.cardBody {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.courseTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  line-height: 1.4;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+ 
+  -webkit-box-orient: vertical;
+}
+
+.courseDetails {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.detailItem {
+  margin: 0;
+}
+
+.lessonCount {
+  margin: 5px 0 0;
+}
+
+.completedBadge {
+  background-color: #28a745;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  margin-left: 8px;
+}
+
+.progressBar {
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease-in-out;
+}
+
+.progressIncomplete {
+  background-color: #007bff;
+}
+
+.progressComplete {
+  background-color: #28a745;
+}
+
+.actionButton {
+  margin-top: auto;
+  padding: 8px 0;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.buttonIncomplete {
+  background-color: #007bff;
+}
+
+.buttonIncomplete:hover {
+  background-color: #0056b3;
+}
+
+.buttonComplete {
+  background-color: #6c757d;
+}
+
+.buttonComplete:hover {
+  background-color: #5a6268;
+}

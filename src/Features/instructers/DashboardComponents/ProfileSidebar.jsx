@@ -34,7 +34,7 @@ const ProfileSidebar = () => {
               className={styles.profileImage}
               src={
                 instructor?.profile_picture
-                  ? `http://127.0.0.1:8000${instructor.profile_picture}`
+                  ? `https://api.elern.shop${instructor.profile_picture}`
                   : defaultPicture
               }
               alt="Profile"

@@ -3,11 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { setFormData, setLoading, setTokens, setError } from "../../Redux/Slices/loginSlice";
 import { useNavigate } from "react-router-dom";
 import { loginSuccess } from "../../Redux/Slices/authSlice";
-import "../../styles/Login.css";
+import api from "../../Redux/api";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import Navbar from "../../components/Navbar";
-
+import "../../styles/Login.css";
 const Login = () => {
   const dispatch = useDispatch();
   const { email, password, isLoading, error } = useSelector((state) => state.login);
@@ -25,7 +25,7 @@ const Login = () => {
     dispatch(setLoading(true));
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/login/", {
+      const response = await api.post("api/login/", {
         email,
         password,
       });

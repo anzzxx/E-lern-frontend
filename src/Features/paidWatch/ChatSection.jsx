@@ -3,10 +3,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Card, ListGroup, Button } from "react-bootstrap";
-import "../../styles/watch.css";
+import { STATIC_URL } from "../../Redux/api";
 import Message from "../../components/Message";
 import api from "../../Redux/api";
 import { fetchTests } from "../../Redux/Slices/TestSlice";
+import "../../styles/watch.css";
 
 // ChatMessage Component with reply functionality
 function ChatMessage({ 
@@ -20,7 +21,7 @@ function ChatMessage({
   replyToMessage,
   createdAt
 }) {
-  const BASEURL = "http://127.0.0.1:8000";
+  
   
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -42,7 +43,7 @@ function ChatMessage({
   return (
     <div className="message">
       <img 
-        src={avatar ? `${BASEURL}${avatar}` : '/default-avatar.png'} 
+        src={avatar ? `${STATIC_URL}${avatar}` : '/default-avatar.png'} 
         className="avatar" 
         alt={`${username}'s avatar`} 
         onError={(e) => {
@@ -182,7 +183,7 @@ function ChatSection({ courseId, description }) {
   useEffect(() => {
     if (isLoadingMessages) return; // Wait until initial messages are loaded
 
-    ws.current = new WebSocket(`ws://127.0.0.1:8000/ws/comment/${courseId}/?token=${accessToken}`);
+    ws.current = new WebSocket(`wss://api.elern.shop/ws/comment/${courseId}/?token=${accessToken}`);
 
     ws.current.onopen = () => {
       console.log("WebSocket connection established");

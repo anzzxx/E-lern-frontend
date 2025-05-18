@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useCallback } from "react";
-import "../styles/review.css";
+import {STATIC_URL} from "../Redux/api";
 import { useDispatch, useSelector } from "react-redux";
 import api from '../Redux/api';
 import { useParams } from "react-router-dom";
 import { fetchReviews } from "../Redux/Slices/reviewSlice";
 import { Button, Popconfirm, message } from 'antd';
 import { EllipsisOutlined } from '@ant-design/icons';
-
+import "../styles/review.css";
 const ShowReview = () => {
   const { id } = useParams();
   const courseId = Number(id);
@@ -21,7 +21,7 @@ const ShowReview = () => {
   const [openMenuId, setOpenMenuId] = useState(null);
 
   const IsAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  const BASE_URL = "http://127.0.0.1:8000";
+  
   
   const user = useSelector((state) => state.auth.user);
   const userId = user ? user.id : null;
@@ -142,7 +142,7 @@ const ShowReview = () => {
       name: review.user_details.username,
       userId: review.user_details.id,
       avatar: review.user_details.profile
-        ? `${BASE_URL}${review.user_details.profile}`
+        ? `${STATIC_URL}${review.user_details.profile}`
         : `https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250`,
       rating: review.rating,
       comment: review.comment,

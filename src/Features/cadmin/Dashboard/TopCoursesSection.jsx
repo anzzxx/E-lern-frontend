@@ -3,7 +3,7 @@ import { fetchInactiveCourseRequests } from "../../../Redux/Slices/courseRequest
 import { fetchCourseReports } from "../../../Redux/Slices/ReportedCourseSlice";
 import { fetchInstructors } from "../../../Redux/Slices/InstructorsSlice";
 import { useDispatch, useSelector } from "react-redux";
-
+import { STATIC_URL } from "../../../Redux/api";
 export default function CourseManagementSection() {
   const dispatch = useDispatch();
   const { requests, status, error } = useSelector(
@@ -226,7 +226,7 @@ export default function CourseManagementSection() {
             <div key={index} className="item-card">
               <div className="item-info">
                 <img
-                  src={`http://127.0.0.1:8000${instructor.profile_picture}` || "/default-profile.png"}
+                  src={`${STATIC_URL}${instructor.profile_picture}` || "/default-profile.png"}
                   alt={instructor.name}
                   className="item-image"
                 />

@@ -1,5 +1,9 @@
 /* styles/Banner.css */
-
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 /* Container Styles */
 .banner-container {
   position: relative;

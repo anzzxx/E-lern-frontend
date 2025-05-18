@@ -3,7 +3,9 @@
     flex-direction: column;
     width: 100%;
     max-width: 896px;
-    margin: 0 auto;
+    margin-top:0px;
+    margin-left: 0px;
+    background-color: #f87171;
     padding: 16px;
   }
   

@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import InstructorCard from "../HomeComponets/InstructorCard ";
+import {STATIC_URL} from "../../Redux/api";
 import { useSelector } from "react-redux";
 
 function PopularInstructor() {
@@ -105,7 +106,7 @@ function PopularInstructor() {
     const processed = instructors.map(instructor => ({
       ...instructor,
       imageSrc: instructor.profile_picture 
-        ? `http://127.0.0.1:8000${instructor.profile_picture}`
+        ? `${STATIC_URL}${instructor.profile_picture}`
         : DEFAULT_INSTRUCTOR_IMAGE,
       title: instructor.experience || "Expert Instructor"
     }));
