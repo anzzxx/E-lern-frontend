@@ -34,7 +34,7 @@ import Instructors from "./Features/cadmin/Instructors";
 import InstructorPayments from "./Features/cadmin/InstructorPayments";
 import Revenue from "./Features/instructers/Revenue";
 import Test from "./components/Test";
-import CourseDetailView from "./Features/instructers/courseDetailView";
+import CourseDetailView from "./Features/instructers/CourseDetailView";
 import InstructorPaymentDashboard from "./Features/instructers/InstructorPaymentDashboard";
 import QuizManagement from "./Features/mcqtest/QuizManagement";
 import SearchPage from "./components/SearchPage";
