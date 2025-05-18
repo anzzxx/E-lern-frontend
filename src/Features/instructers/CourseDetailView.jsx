@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/courseoptions/Header";
 import CoursePreview from "../../components/courseoptions/CoursePreview";
-import PieChartDetail from "../../components/courseoptions/PieChart";
+// import PieChartDetail from "../../components/courseoptions/PieChart";
 import Quizzes from "../../components/courseoptions/Quizzes";
 import Assignments from "../../components/courseoptions/Assignments";
 import Reviews from "../../components/courseoptions/Reviews";
@@ -167,7 +167,7 @@ function CourseDetailView() {
 
               {/* PieChart takes 30% width */}
               <div style={{ flex: "0 0 30%" }}>
-                <PieChart />
+                {/* <PieChart /> */}
                 <br />
                 <Assignments
                   items={[

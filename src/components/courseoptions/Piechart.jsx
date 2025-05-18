@@ -53,4 +53,4 @@ const PieChartDetail = () => {
     );
 };
 
-export default PieChart;
+export default PieChartDetail;
