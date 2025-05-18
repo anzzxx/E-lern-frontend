@@ -6,9 +6,15 @@ export default defineConfig({
   server: {
     host: true,
     strictPort: true,
-    allowedHosts: [
-      '.ngrok-free.app',  
-      
-    ]
+    allowedHosts: ['.ngrok-free.app']
+  },
+  build: {
+    rollupOptions: {
+      onwarn(warning, warn) {
+        // Ignore circular dependency warnings
+        if (warning.code === 'CIRCULAR_DEPENDENCY') return;
+        warn(warning);
+      }
+    }
   }
 });
