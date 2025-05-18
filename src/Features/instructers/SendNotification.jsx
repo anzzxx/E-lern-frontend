@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import api from '../../Redux/api';
 import Reusablesidebar from "../../components/Reusablesidebar";
 import { handleLogout } from "../../components/Logout";
-import '../../styles/login.css';
+
 
 function SendNotification() {
   const [message, setMessage] = useState('');
