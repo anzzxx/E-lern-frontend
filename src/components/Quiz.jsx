@@ -87,172 +87,174 @@ const Quiz = ({ testID, courseId }) => {
     return correct;
   };
 
-  if (!selectedTest) return <div className="quiz-container">Loading test...</div>;
-  if (filteredQuestions.length === 0) return <div className="quiz-container">No questions available.</div>;
+  if (!selectedTest) return <div className="quiz-loading">Loading test...</div>;
+  if (filteredQuestions.length === 0) return <div className="quiz-loading">No questions available.</div>;
 
   const currentQuestion = filteredQuestions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === filteredQuestions.length - 1;
   const isFirstQuestion = currentQuestionIndex === 0;
   const score = calculateScore();
   const isSkipped = skippedQuestions.includes(currentQuestion.id);
+  const percentage = Math.round((score / filteredQuestions.length) * 100);
 
   return (
-    <main className="quiz-container">
+    <div className="quiz-container">
       {/* Header Section */}
-      <header className="quiz-header">
-        <div className="coin-counter">
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/a0aa6f5b4631f1874fce45ec352d5b5fd9c0dfd8?placeholderIfAbsent=true&apiKey=34d728b774e44ebe92ee1866d5dfa190"
-            alt="Coin icon"
-            className="coin-icon"
-          />
-          <span className="coin-amount">200</span>
-        </div>
-
-        <h1 className="quiz-title">{selectedTest.title}</h1>
-
-        <img
-          src="https://cdn.builder.io/api/v1/image/assets/TEMP/57dd45736e9a2f50f12f921c2e8fa01be13309c9?placeholderIfAbsent=true&apiKey=34d728b774e44ebe92ee1866d5dfa190"
-          alt="Quiz icon"
-          className="quiz-icon"
-        />
-      </header>
-
-      {/* Question Section - shows results if submitted */}
-      {submitted ? (
-        <section className="results-container">
-          <h2 className="question-text">Quiz Results</h2>
-          <div className="score-summary">
-            <p>You scored {score} out of {filteredQuestions.length}</p>
-            <div className="progress-bar">
-              <div 
-                className="progress-fill" 
-                style={{ width: `${(score / filteredQuestions.length) * 100}%` }}
-              ></div>
-            </div>
-          </div>
-          {filteredQuestions.map((question) => {
-            const correctAnswer = question.answers.find(ans => ans.is_correct);
-            const userAnswer = answers[question.id];
-            const isCorrect = userAnswer === correctAnswer?.id;
-            const wasSkipped = skippedQuestions.includes(question.id);
-
-            return (
-              <article 
-                key={question.id} 
-                className={`result-item ${isCorrect ? 'correct' : 'incorrect'} ${wasSkipped ? 'skipped' : ''}`}
-              >
-                <h3>{question.text}</h3>
-                {wasSkipped ? (
-                  <p className="result-status">⏭️ Skipped</p>
-                ) : (
-                  <>
-                    <p className="user-answer">
-                      Your answer: <span className={isCorrect ? 'correct-text' : 'incorrect-text'}>
-                        {question.answers.find(a => a.id === userAnswer)?.text || "Not answered"}
-                      </span>
-                    </p>
-                    {!isCorrect && (
-                      <p className="correct-answer">
-                        Correct answer: <span className="correct-text">{correctAnswer?.text}</span>
-                      </p>
-                    )}
-                  </>
-                )}
-                <div className="explanation">
-                  {question.explanation && <p>{question.explanation}</p>}
-                </div>
-              </article>
-            );
-          })}
-        </section>
-      ) : (
-        <>
-          {/* Current Question */}
-          <section className="question-container">
-            <h2 className="question-text">{currentQuestion.text}</h2>
-            {isSkipped && <p className="skip-notice">You skipped this question</p>}
-          </section>
-
-          {/* Options Section */}
-          <div className="options-list">
-            {currentQuestion.answers.map((answer) => (
-              <article
-                key={answer.id}
-                className={`option-container ${selectedAnswer === answer.id ? 'selected' : ''}`}
-                onClick={() => handleOptionSelect(answer.id)}
-              >
-                <span className="option-letter">
-                  {String.fromCharCode(65 + currentQuestion.answers.indexOf(answer))}
-                </span>
-                <h3 className="index-name">{answer.text}</h3>
-                {selectedAnswer === answer.id && (
-                  <span className="selection-indicator">✓</span>
-                )}
-              </article>
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* Footer Section */}
-      <footer className="quiz-footer">
-        <div className="footer-content">
-          <span className="step-counter">
+      <div className="quiz-header">
+        <h1>{selectedTest.title}</h1>
+        <div className="progress-container">
+          <span className="progress-text">
             {submitted ? 
               `${filteredQuestions.length}/${filteredQuestions.length}` : 
               `${currentQuestionIndex + 1}/${filteredQuestions.length}`
             }
           </span>
-          
-          <div className="navigation-buttons">
-            {!submitted && !isFirstQuestion && (
-              <button 
-                className="nav-button prev-button" 
-                onClick={handlePrev}
-              >
-                Previous
-              </button>
-            )}
-            
-            {!submitted && (
-              <button 
-                className="nav-button skip-button" 
-                onClick={handleSkip}
-              >
-                Skip
-              </button>
-            )}
-            
-            {!submitted && !isLastQuestion && (
-              <button 
-                className="nav-button next-button" 
-                onClick={handleNext}
-                disabled={!selectedAnswer && !isSkipped}
-              >
-                Next
-              </button>
-            )}
-            
-            {!submitted && isLastQuestion && (
-              <button 
-                className="continue-button" 
-                onClick={handleSubmit}
-                disabled={!selectedAnswer && !isSkipped}
-              >
-                Submit Quiz
-              </button>
-            )}
-            
-            {submitted && (
-              <button className="continue-button">
-                Finish
-              </button>
-            )}
+          <div className="progress-bar">
+            <div 
+              className="progress-fill" 
+              style={{ 
+                width: `${((currentQuestionIndex + 1) / filteredQuestions.length) * 100}%`,
+                backgroundColor: submitted ? '#3dcbb1' : '#3dcbb1'
+              }}
+            ></div>
           </div>
         </div>
-      </footer>
-    </main>
+      </div>
+
+      {/* Main Content */}
+      <div className="quiz-content">
+        {submitted ? (
+          <div className="results-section">
+            <div className="results-summary">
+              <h2>Quiz Results</h2>
+              <div className="score-display">
+                <div className="score-circle">
+                  <span className="score-percent">{percentage}%</span>
+                  <span className="score-text">{score} out of {filteredQuestions.length} correct</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="results-details">
+              {filteredQuestions.map((question, index) => {
+                const correctAnswer = question.answers.find(ans => ans.is_correct);
+                const userAnswer = answers[question.id];
+                const isCorrect = userAnswer === correctAnswer?.id;
+                const wasSkipped = skippedQuestions.includes(question.id);
+
+                return (
+                  <div 
+                    key={question.id} 
+                    className={`result-item ${isCorrect ? 'correct' : wasSkipped ? 'skipped' : 'incorrect'}`}
+                  >
+                    <div className="result-question">
+                      <span className="question-number">Q{index + 1}:</span> {question.text}
+                    </div>
+                    {wasSkipped ? (
+                      <div className="result-status skipped">Skipped</div>
+                    ) : (
+                      <>
+                        <div className="user-answer">
+                          Your answer: <span className={isCorrect ? 'correct' : 'incorrect'}>
+                            {question.answers.find(a => a.id === userAnswer)?.text || "Not answered"}
+                          </span>
+                        </div>
+                        {!isCorrect && (
+                          <div className="correct-answer">
+                            Correct answer: <span className="correct">{correctAnswer?.text}</span>
+                          </div>
+                        )}
+                      </>
+                    )}
+                    {question.explanation && (
+                      <div className="explanation">
+                        <p>{question.explanation}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Question Section */}
+            <div className="question-section">
+              <div className="question-text">
+                <span className="question-number">Question {currentQuestionIndex + 1}</span>
+                <h2>{currentQuestion.text}</h2>
+                {isSkipped && <span className="skip-notice">(Skipped)</span>}
+              </div>
+
+              {/* Options Section */}
+              <div className="options-list">
+                {currentQuestion.answers.map((answer) => (
+                  <div
+                    key={answer.id}
+                    className={`option ${selectedAnswer === answer.id ? 'selected' : ''}`}
+                    onClick={() => handleOptionSelect(answer.id)}
+                  >
+                    <span className="option-letter">
+                      {String.fromCharCode(65 + currentQuestion.answers.indexOf(answer))}
+                    </span>
+                    <span className="option-text">{answer.text}</span>
+                    {selectedAnswer === answer.id && (
+                      <span className="option-check">✓</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Footer Navigation */}
+      <div className="quiz-footer">
+        <div className="navigation-buttons">
+          {!submitted && !isFirstQuestion && (
+            <button className="nav-button prev" onClick={handlePrev}>
+              Previous
+            </button>
+          )}
+          
+          {!submitted && (
+            <button className="nav-button skip" onClick={handleSkip}>
+              Skip
+            </button>
+          )}
+          
+          {!submitted && !isLastQuestion && (
+            <button 
+              className="nav-button next" 
+              onClick={handleNext}
+              disabled={!selectedAnswer && !isSkipped}
+            >
+              Next
+            </button>
+          )}
+          
+          {!submitted && isLastQuestion && (
+            <button 
+              className="nav-button submit" 
+              onClick={handleSubmit}
+              disabled={!selectedAnswer && !isSkipped}
+            >
+              Submit Quiz
+            </button>
+          )}
+          
+          {submitted && (
+            <button 
+            className="nav-button finish"
+            onClick={() => window.history.back()}
+            >
+              Finish
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 

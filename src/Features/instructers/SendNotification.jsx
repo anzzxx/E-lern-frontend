@@ -28,12 +28,13 @@ function SendNotification() {
   };
 
   const menuItems = [
-    { label: "Dashboard", path: "/instructor/" },
-    { label: "Courses", path: "/instructor/course" },
-    { label: "Notification", path: "/instructor/notification" },
-    { label: "Payment History", path: "/instructor/payment/details" },
-    { label: "Logout", onClick: handleLogout },
-  ];
+      { label: "Dashboard", path: "/instructor/" },
+      { label: "Courses", path: "/instructor/course" },
+      { label: "Notification", path: "/instructor/notification" },
+      { label: "Payment History", path: "/instructor/payment/details" },
+      { label: "Create Meeting", path: "/instructor/create-meenting" },
+      { label: "Logout", onClick: handleLogout },
+    ];
 
   return (
     <>

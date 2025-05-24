@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { SyncLoader } from "react-spinners";
 import api from "../../../Redux/api";
-import "../../../styles/PurchaseHistoryTable.css"; // Import the CSS file
+import "../../../styles/PurchaseHistoryTable.css";
 
 const PurchaseHistoryTable = () => {
   const [purchases, setPurchases] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(15); // Increased items per page for full screen
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -38,55 +38,63 @@ const PurchaseHistoryTable = () => {
       setCurrentPage(page);
     }
   };
-
+  
   if (isLoading) {
     return (
-      <div className="loading-container">
-        <SyncLoader color="#6c63ff" size={10} />
+      <div className="fullscreen-loading">
+        <SyncLoader color="#6c63ff" size={15} />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="error-container">
-        Error loading purchase history: {error.message}
+      <div className="fullscreen-error">
+        <p>Error loading purchase history: {error.message}</p>
       </div>
     );
   }
 
   return (
-    <div className="table-container">
-      <h3 className="table-title">Purchase History</h3>
+    <div className="fullscreen-container">
+      <div className="fullscreen-header">
+        <h1>Purchase History</h1>
+        <div className="header-info">
+          <span>Total Purchases: {purchases.length}</span>
+          <span>Page {currentPage} of {totalPages}</span>
+        </div>
+      </div>
 
-      <div className="table-wrapper">
-        <table className="styled-table">
-          <thead className="table-header">
+      <div className="fullscreen-table-container">
+        <table className="fullscreen-table">
+          <thead>
             <tr>
-              <th className="table-header-cell">Purchase Date</th>
-              <th className="table-header-cell">Course</th>
-              <th className="table-header-cell">Student</th>
+              <th className="date-col">Purchase Date</th>
+              <th className="course-col">Course</th>
+              <th className="student-col">Student</th>
             </tr>
           </thead>
           <tbody>
             {currentData.length === 0 ? (
               <tr>
-                <td className="empty-state" colSpan="3">
-                  No purchases available.
+                <td colSpan="3" className="no-data">
+                  No purchases available
                 </td>
               </tr>
             ) : (
               currentData.map((item) => (
-                <tr className="table-row" key={item.id}>
-                  <td className="table-cell">
+                <tr key={item.id}>
+                  <td className="date-col">
                     {new Date(item.enrolled_at).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
+                      hour: '2-digit',
+                      minute: '2-digit'
                     })}
                   </td>
-                  <td className="table-cell">{item.course_title}</td>
-                  <td className="table-cell">{item.username}</td>
+                  <td className="course-col">{item.course_title}</td>
+                  <td className="student-col">{item.username}</td>
                 </tr>
               ))
             )}
@@ -95,29 +103,60 @@ const PurchaseHistoryTable = () => {
       </div>
 
       {purchases.length > 0 && (
-        <div className="pagination-container">
+        <div className="fullscreen-pagination">
           <button
-            className={`pagination-button ${currentPage === 1 ? 'disabled' : ''}`}
+            onClick={() => handlePageChange(1)}
+            disabled={currentPage === 1}
+            className="pagination-btn first-last"
+          >
+            « First
+          </button>
+          <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
+            className="pagination-btn"
           >
-            Previous
+            ‹ Prev
           </button>
-          {Array.from({ length: totalPages }, (_, index) => (
-            <button
-              key={index + 1}
-              className={`pagination-button ${currentPage === index + 1 ? 'active' : ''}`}
-              onClick={() => handlePageChange(index + 1)}
-            >
-              {index + 1}
-            </button>
-          ))}
+          
+          <div className="page-numbers">
+            {Array.from({ length: Math.min(7, totalPages) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 7) {
+                pageNum = i + 1;
+              } else if (currentPage <= 4) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 3) {
+                pageNum = totalPages - 6 + i;
+              } else {
+                pageNum = currentPage - 3 + i;
+              }
+              
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                  className={`pagination-btn ${currentPage === pageNum ? 'active' : ''}`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+          </div>
+
           <button
-            className={`pagination-button ${currentPage === totalPages ? 'disabled' : ''}`}
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
+            className="pagination-btn"
           >
-            Next
+            Next ›
+          </button>
+          <button
+            onClick={() => handlePageChange(totalPages)}
+            disabled={currentPage === totalPages}
+            className="pagination-btn first-last"
+          >
+            Last »
           </button>
         </div>
       )}

@@ -7,7 +7,7 @@ export default function LastWeekActivity() {
 
   return (
     <div className="activity-container">
-      <h2 className="activity-title">Your Last Week Activity</h2>
+      {/* <h2 className="activity-title">Your Last Week Activity</h2>
       <h3 className="activity-subtitle">Cyber Security</h3>
       <div className="activity-table">
         <table>
@@ -26,7 +26,7 @@ export default function LastWeekActivity() {
             </tr>
           </tbody>
         </table>
-      </div>
+      </div> */}
       <br />
       <CourseProgress enrolledCourses={courses}/>
     </div>

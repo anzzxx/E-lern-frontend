@@ -11,7 +11,6 @@ import { fetchLesson } from "../../Redux/Slices/lessonsSlice";
 import { fetchEnrolledCourses } from "../../Redux/Slices/enrollmentSlice";
 import api from "../../Redux/api";
 
-// VideoSection Component
 function VideoSection({ videoUrl, lessonId }) {
   const { id } = useParams();
   const courseId = id;
@@ -19,7 +18,6 @@ function VideoSection({ videoUrl, lessonId }) {
   const course = courses.find((course) => course.id === parseInt(courseId, 10));
   const videoRef = useRef(null);
 
-  // Fallback to course preview_video if no lesson video is provided
   const effectiveVideoUrl = videoUrl || course?.preview_video?.replace("video/upload/", "") || "";
 
   useEffect(() => {
@@ -51,13 +49,15 @@ function VideoSection({ videoUrl, lessonId }) {
         {effectiveVideoUrl ? (
           <video
             ref={videoRef}
-            key={effectiveVideoUrl} // Force re-render when URL changes
+            key={effectiveVideoUrl}
             className="video-player"
             src={effectiveVideoUrl}
             autoPlay
             controls
             muted
             style={{ width: "100%", height: "auto" }}
+            onContextMenu={(e) => e.preventDefault()}
+            controlsList="nodownload nofullscreen noremoteplayback"
           >
             Your browser does not support the video tag.
           </video>
@@ -72,7 +72,6 @@ function VideoSection({ videoUrl, lessonId }) {
     </article>
   );
 }
-
 // LessonItem Component
 function LessonItem({ lessonId, number, title, duration, thumbnail, videoUrl, onLessonSelect }) {
   const handleClick = () => {
@@ -97,7 +96,7 @@ function LessonItem({ lessonId, number, title, duration, thumbnail, videoUrl, on
           </span>
         </div>
       </div>
-      <time className="lesson-duration">{duration}</time>
+      {/* <time className="lesson-duration">{duration}</time> */}
     </div>
   );
 }
@@ -158,12 +157,9 @@ function CourseInfo({ onLessonSelect, selectedLessonTitle }) {
       <header className="course-header">
         <div className="title-row">
           <h1 className="course-title">{selectedLessonTitle || course?.title || "Course Title"}</h1>
-          <button className="follow-button">Follow</button>
+          
         </div>
-        <div className="date-info">
-          <time className="course-date">{course?.start_date || "Unknown Date"}</time>
-          <time className="start-time">{course?.start_time || "Unknown Time"}</time>
-        </div>
+        
       </header>
       <hr className="divider" />
       <LessonList onLessonSelect={onLessonSelect} />

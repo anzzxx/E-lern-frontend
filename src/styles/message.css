@@ -11,6 +11,8 @@
   align-items: center;
   width: 250px;
   animation: slideIn 0.5s ease-in-out; /* Slide-in animation */
+  z-index: 9999; /* This ensures it stays on top of other elements */
+  background: #333; /* Added background color for visibility */
 }
 
 /* Success message styling */

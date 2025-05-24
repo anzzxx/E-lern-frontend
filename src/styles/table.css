@@ -1,66 +1,150 @@
-.main-content {
-    margin-left: 300px;  /* Same as sidebar width */
-    padding: 20px;
-    width: calc(100% - 300px);  /* Ensure it takes the remaining space */
-  }
-  
-  .table-container {
-    width: 70%;
-    overflow-x: auto;
-  
-  }
-  
-  .custom-table {
-    width: 76%;  /* Reduce table width */
-    max-width: 1200px; /* Set a max width */
-    margin-left: 300px;
-    border-collapse: collapse;
-    margin-top: 50px;
-    border-radius: 500px;
-  }
-  .requests-container .custom-table {
-    width: 70%;  /* Reduce table width */
-    max-width: 1200px; /* Set a max width */
-    margin-left: 360px;
-    border-collapse: collapse;
-    margin-top: 50px;
-    border-radius: 500px;
-  }
-  
-  
-  .custom-table thead {
-    background-color: #f28b8b;
-    color: white;
-  }
-  
-  .custom-table th, .custom-table td {
-    padding: 12px;
-    border: 1px solid #ddd;
-    text-align: center;
-  }
-  .custom-table tbody tr:hover {
-    background-color: #f1f1f1;
-  }
-  .plus-icon {
-    position: absolute; 
-    margin-top:200px; 
-    right: 0; 
-    cursor: pointer; 
-    font-size: 24px; 
-    color: #f28b8b; 
-    margin-top: 120px;
-    margin-right: 120px;
-    
+.table-container {
+  width: 78%;
+  overflow-x: auto;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  background: white;
+  margin: 20px 0;
+  margin-left:280px;
 }
 
-  
-  /* Responsive Fix */
-  @media (max-width: 1024px) {
-    .main-content {
-      margin-left: 0;
-      width: 100%;
-    }
-  }
+.modern-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
- 
+.modern-table thead {
+  position: sticky;
+  top: 0;
+}
+
+.modern-table th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  text-align: left;
+  padding: 15px 20px;
+  position: relative;
+}
+
+.modern-table th:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 60%;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.modern-table td {
+  padding: 12px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #555;
+  transition: all 0.2s ease;
+  max-width: 250px;
+  word-break: break-word;
+}
+
+.modern-table td:last-child {
+  max-width: none;
+}
+
+.modern-table tr.even-row {
+  background-color: #f9fafc;
+}
+
+.modern-table tr.odd-row {
+  background-color: white;
+}
+
+.modern-table tbody tr:hover {
+  background-color: #f0f4ff;
+}
+
+.modern-table tbody tr:hover td {
+  color: #333;
+}
+
+.cell-content {
+  max-height: 3.6em;
+  line-height: 1.2em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  transition: max-height 0.3s ease;
+}
+
+.cell-content.expanded {
+  max-height: none;
+  -webkit-line-clamp: unset;
+}
+
+.cell-content.no-truncate {
+  max-height: none;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.expand-toggle {
+  background: none;
+  border: none;
+  color: #667eea;
+  cursor: pointer;
+  font-size: 0.8em;
+  padding: 2px 5px;
+  margin-top: 5px;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+.expand-toggle:hover {
+  background-color: #f0f4ff;
+  text-decoration: underline;
+}
+
+/* Rounded corners */
+.modern-table thead tr:first-child th:first-child {
+  border-top-left-radius: 10px;
+}
+
+.modern-table thead tr:first-child th:last-child {
+  border-top-right-radius: 10px;
+}
+
+.modern-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+.modern-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .table-container {
+    padding: 10px;
+    box-shadow: none;
+    border-radius: 0;
+  }
   
+  .modern-table th,
+  .modern-table td {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .modern-table td {
+    max-width: 150px;
+  }
+}
+
+/* Animation for new rows
+@keyframes fadeIn {
+  from { opacity:  */

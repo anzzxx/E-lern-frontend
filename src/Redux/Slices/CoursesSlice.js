@@ -42,19 +42,43 @@ export const fetchAllCourses = createAsyncThunk(
     }
 );
 
-// 🔹 Add Course
+// // 🔹 Add Course
+// export const addCourse = createAsyncThunk(
+//     "courses/add",
+//     async (formData, { rejectWithValue }) => {
+//         try {
+//             const response = await api.post("course/create/", formData, {
+//                 headers: { "Content-Type": "multipart/form-data" },
+//             });
+//             return response.data;
+//         } catch (error) {
+//             return rejectWithValue(error.response?.data || "Failed to add course");
+//         }
+//     }
+// );
+
+
+// 🔹 Add Course with progress tracking
 export const addCourse = createAsyncThunk(
-    "courses/add",
-    async (formData, { rejectWithValue }) => {
-        try {
-            const response = await api.post("course/create/", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(error.response?.data || "Failed to add course");
-        }
+  "courses/add",
+  async ({ formData, setProgress }, { rejectWithValue }) => {
+    try {
+      const response = await api.post("course/create/", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total && setProgress) {
+            const progress = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setProgress(progress);
+          }
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to add course");
     }
+  }
 );
 
 // 🔹 Update Course

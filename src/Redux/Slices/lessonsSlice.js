@@ -15,39 +15,77 @@ export const fetchLesson = createAsyncThunk("lesson/fetchLesson", async (courseI
 });
 
 // 🔹 Create Lesson
-export const createLesson = createAsyncThunk("lesson/createLesson", async (formData, { rejectWithValue }) => {
+export const createLesson = createAsyncThunk(
+  "lesson/createLesson",
+  async ({ formData, setProgress }, { rejectWithValue }) => {
     try {
-        for (let [key, value] of formData.entries()) {
-            console.log(`FormData -> ${key}:`, value);
-        }
 
-        const response = await api.post("lessons/get-lessons/", formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-        });
-
-        return response.data;
-    } catch (error) {
-        return rejectWithValue(error.response?.data || "An error occurred while creating the lesson");
-    }
-});
-
-
-
-export const updateLesson = createAsyncThunk(
-    "lesson/updateLesson",
-    async ({ id, data }, { rejectWithValue }) => {
-      try {
-        const response = await api.patch(`lessons/edit-lessons/${id}/`, data, {
-          headers: {
-            "Content-Type": "multipart/form-data",
+      const response = await api.post("lessons/get-lessons/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total && setProgress) {
+            const progress = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setProgress(progress);
           }
-        });
-        return response.data;
-      } catch (error) {
-        return rejectWithValue(error.response?.data || "An error occurred");
-      }
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "An error occurred while creating the lesson"
+      );
     }
-  );
+  }
+);
+
+// In your lessonsSlice.js
+export const updateLesson = createAsyncThunk(
+  "lesson/updateLesson",
+  async ({ id, data, setProgress }, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(`lessons/edit-lessons/${id}/`, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total && setProgress) {
+            const progress = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setProgress(progress);
+          }
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "An error occurred while updating the lesson"
+      );
+    }
+  }
+);
+
+// export const updateLesson = createAsyncThunk(
+//     "lesson/updateLesson",
+//     async ({ id, data }, { rejectWithValue }) => {
+//       try {
+//         const response = await api.patch(`lessons/edit-lessons/${id}/`, data, {
+//           headers: {
+//             "Content-Type": "multipart/form-data",
+//           }
+//         });
+//         return response.data;
+//       } catch (error) {
+//         return rejectWithValue(error.response?.data || "An error occurred");
+//       }
+//     }
+//   );
+
 const lessonSlice = createSlice({
     name: "lesson",
     initialState: {

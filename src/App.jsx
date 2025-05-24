@@ -160,7 +160,7 @@ function App() {
           <Route path="/instructor/course" element={<Course />} />
           <Route path="/instructor/notification" element={<SendNotification />} />
           <Route path="/instructor/course/:id" element={<CourseDetailView />} />
-          <Route path="/instructor/course/create-test/:id" element={<Test />} />
+          {/* <Route path="/instructor/course/create-test/:id" element={<Test />} /> */}
           <Route path="/instructor/course/manage-test/:testId/:courseId/" element={<QuizManagement />} />
           <Route path="/instructor/revenue" element={<Revenue />} />
           <Route path="/instructor/payment/details" element={<InstructorPaymentDashboard/>} />

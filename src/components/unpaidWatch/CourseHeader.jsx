@@ -14,7 +14,7 @@ function CourseHeader({ selectedCourse }) {
       reviews.filter((review) => review.course === selectedCourse.id)
       : [];
 
-  console.log("coursereview",courseReviews);
+  // console.log("coursereview",courseReviews);
       
 
   const averageRating =
@@ -32,7 +32,7 @@ function CourseHeader({ selectedCourse }) {
     const hasHalfStar = averageRating % 1 >= 0.5;
 
     // Debugging: Log values to check if they're correct
-    console.log({ averageRating, fullStars, hasHalfStar, courseReviews });
+    // console.log({ averageRating, fullStars, hasHalfStar, courseReviews });
 
     return (
       <div style={styles.ratingStars}>

@@ -27,11 +27,13 @@
    
   }
   .video-wrapper {
-    position: relative;
-    min-height: 450px;
+    background-color: rgb(240, 237, 242);
+    position: relative; 
+    margin-top: 0;
+    min-height: 30px;
     border-radius: 30px;
     overflow: hidden;
-  }
+  } 
   .video-thumbnail {
     position: absolute;
     inset: 0;

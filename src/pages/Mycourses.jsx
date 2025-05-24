@@ -2,12 +2,13 @@ import React, { useEffect } from 'react';
 import '../styles/sidebar.css';
 import Sidebar from '../components/Sidebar';
 import LastWeekActivity from "../components/LastWeekActivity";
+import CourseProgress from '../components/CourseProgress';
 import { fetchStudentProgress } from '../Redux/Slices/studentProgressSlice';
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEnrolledCourses } from "../Redux/Slices/enrollmentSlice";
 function Mycourses() {
   const dispatch = useDispatch();
-  
+  const { courses, stats, loading, error } = useSelector((state) => state.enrollments);
   
   useEffect(()=>{
     dispatch(fetchEnrolledCourses());
@@ -25,7 +26,8 @@ function Mycourses() {
           <h2>Anas</h2>
           <p>amu8148@gmail.com</p>
         </div>
-        <LastWeekActivity />
+        {/* <LastWeekActivity /> */}
+        <CourseProgress enrolledCourses={courses}/>
         
       </div>
     </div>

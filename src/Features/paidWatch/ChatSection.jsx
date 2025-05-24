@@ -140,12 +140,12 @@ function ChatSection({ courseId, description }) {
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to bottom when new messages arrive
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  // const scrollToBottom = () => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // };
 
   useEffect(() => {
-    scrollToBottom();
+    // scrollToBottom();
   }, [messages]);
 
   // Fetch initial messages from API
@@ -440,13 +440,13 @@ function ChatSection({ courseId, description }) {
           />
         </button>
       </footer>
-      {message && (
-        <Message
-          message={message.message}
-          type={message.type}
-          onHide={onHide}
-        />
-      )}
+      {/* {message && (
+        // <Message
+        //   message={message.message}
+        //   type={message.type}
+        //   onHide={onHide}
+        // />
+      )} */}
     </div>
             ) : activeTab === "about" ? (
               <div className="about-container">

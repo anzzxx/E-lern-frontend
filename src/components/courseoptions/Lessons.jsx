@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchLesson } from "../../Redux/Slices/lessonsSlice";
-import { FiEdit } from "react-icons/fi"; // Importing edit icon from react-icons
+import { fetchLesson, updateLesson } from "../../Redux/Slices/lessonsSlice";
+import UploadProgressModal from "../../components/UploadProgressModal";
+import { FiEdit } from "react-icons/fi";
+import { Modal, Button, Spinner, Alert, ProgressBar } from "react-bootstrap";
+import * as yup from "yup";
+import ReusableForm from "../../components/ReusableForm";
 
 const Lessons = ({
   courseId,
@@ -15,7 +19,13 @@ const Lessons = ({
 }) => {
   const dispatch = useDispatch();
   const { lessons, loading, error } = useSelector((state) => state.lesson);
-  const [visibleLessons, setVisibleLessons] = useState(3); // State to control number of visible lessons
+  const [visibleLessons, setVisibleLessons] = useState(3);
+  const [editModalShow, setEditModalShow] = useState(false);
+  const [currentLesson, setCurrentLesson] = useState(null);
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [updateError, setUpdateError] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [showProgressModal, setShowProgressModal] = useState(false);
 
   useEffect(() => {
     if (courseId) {
@@ -23,125 +33,154 @@ const Lessons = ({
     }
   }, [courseId, dispatch, isLoading]);
 
-  if (loading) return <div>Loading lessons...</div>;
-  if (error) return <div>Error loading lessons: {error}</div>;
+  const lessonFields = [
+    {
+      name: "title",
+      label: "Title",
+      type: "text",
+      placeholder: "Enter lesson title",
+    },
+    {
+      name: "description",
+      label: "Description",
+      type: "textarea",
+      placeholder: "Enter lesson description",
+    },
+    {
+      name: "video_file",
+      label: "Upload Video",
+      type: "file",
+      accept: "video/*",
+      optional: true,
+    },
+  ];
+
+  const lessonSchema = yup.object().shape({
+    title: yup.string().required("Title is required"),
+    description: yup.string().required("Description is required"),
+    video_file: yup.mixed().nullable(),
+  });
 
   const onEditLesson = (lesson) => {
-    setSelectedLesson(lesson);
-    setShowModal(true);
+    setCurrentLesson(lesson);
+    setEditModalShow(true);
+    setUpdateError(null);
   };
 
-  // Handle View All button click
+  const handleUpdateLesson = async (formData) => {
+    try {
+      setUpdateLoading(true);
+      setUpdateError(null);
+      setUploadProgress(0);
+       setEditModalShow(false);
+      
+      setShowProgressModal(true); 
+      
+      const lessonData = new FormData();
+      lessonData.append("title", formData.title || currentLesson.title);
+      lessonData.append("description", formData.description || currentLesson.description);
+      lessonData.append("course", courseId);
+
+      if (formData.video_file && formData.video_file.length > 0) {
+        lessonData.append("video_file", formData.video_file[0]);
+      } else {
+        lessonData.append("keep_existing_video", "true");
+      }
+
+      const resultAction = await dispatch(
+        updateLesson({ 
+          id: currentLesson.id, 
+          data: lessonData,
+          setProgress: (progress) => {
+            setUploadProgress(progress);
+            // Force immediate state update if available
+            if (typeof flushSync === 'function') {
+              flushSync(() => {});
+            }
+          }
+        })
+      );
+      
+      if (updateLesson.fulfilled.match(resultAction)) {
+        // Ensure progress reaches 100% before hiding
+        setUploadProgress(100);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setShowProgressModal(false);
+        setEditModalShow(false);
+        dispatch(fetchLesson(courseId));
+      } else {
+        throw new Error(resultAction.payload || "Failed to update lesson");
+      }
+    } catch (error) {
+      console.error("Update lesson error:", error);
+      setUpdateError(error.message || "An error occurred while updating the lesson");
+      setShowProgressModal(false);
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+
   const handleViewAll = () => {
     setVisibleLessons(lessons.length);
   };
 
-  // Handle View Less button click
   const handleViewLess = () => {
     setVisibleLessons(3);
   };
 
-  return (
-    <div
-      style={{
-        backgroundColor: "#fff",
-        padding: "16px",
-        borderRadius: "8px",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-        marginBottom: "24px",
-        width: "100%",
-      }}
-    >
-      <h2
-        style={{
-          fontSize: "20px",
-          fontWeight: "600",
-          marginBottom: "16px",
-        }}
-      >
-        Lessons
-      </h2>
+  // if (loading) return <div className="text-center py-4">Loading lessons...</div>;
+  if (error) return <div className="alert alert-danger">Error loading lessons: {error}</div>;
 
-      <div style={{ marginBottom: "16px" }}>
+  return (
+    <>
+    <div className="bg-white p-4 rounded shadow-sm mb-4 w-100">
+      <h2 className="h5 fw-semibold mb-3">Lessons</h2>
+
+      <div className="mb-3">
         {lessons?.slice(0, visibleLessons).map((lesson, index) => (
           <div
-            key={lesson._id || index}
+            key={lesson.id || index}
+            className={`d-flex justify-content-between align-items-center p-3 ${
+              index < Math.min(visibleLessons, lessons.length) - 1 ? "border-bottom" : ""
+            } ${selectedLessonId === lesson.id ? "bg-light-blue" : ""}`}
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "12px",
-              borderBottom:
-                index < Math.min(visibleLessons, lessons.length) - 1
-                  ? "1px solid #e5e7eb"
-                  : "none",
-              backgroundColor:
-                selectedLessonId === lesson._id ? "#f0f7ff" : "transparent",
-              borderRadius: "4px",
               cursor: "pointer",
               transition: "background-color 0.2s ease",
+              borderRadius: "4px",
             }}
           >
             <div
-              style={{
-                flex: 1,
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
+              className="d-flex justify-content-between align-items-center w-100"
               onClick={() => setSelectedLesson(lesson)}
             >
               <span
-                style={{
-                  fontWeight: selectedLessonId === lesson._id ? "600" : "400",
-                  color: selectedLessonId === lesson._id ? "#1a73e8" : "#111827",
-                }}
+                className={selectedLessonId === lesson.id ? "fw-semibold text-primary" : ""}
               >
                 {index + 1}. {lesson.title}
               </span>
-              <span
-                style={{
-                  color: selectedLessonId === lesson._id ? "#1a73e8" : "#4b5563",
-                  marginRight: "8px",
-                }}
-              >
+              <span className={selectedLessonId === lesson.id ? "text-primary" : "text-muted"}>
                 {lesson.duration || "0:00"}
               </span>
             </div>
 
-            {/* Edit icon button */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onEditLesson(lesson);
               }}
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: "#6b7280",
-                padding: "4px",
-                borderRadius: "4px",
-              }}
+              className="btn btn-sm btn-link text-muted p-1 rounded"
               aria-label="Edit lesson"
             >
-              <FiEdit size={16} className="delete-icon" />
+              <FiEdit size={16} />
             </button>
           </div>
         ))}
       </div>
 
-      <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+      <div className="d-flex gap-3 align-items-center">
         {addButton && (
           <button
-            style={{
-              color: "#2563eb",
-              fontWeight: "500",
-              background: "none",
-              border: "none",
-              padding: 0,
-              cursor: "pointer",
-            }}
+            className="btn btn-link text-primary p-0 fw-medium"
             onClick={() => handleCreateLessons()}
           >
             + Add Lesson
@@ -150,14 +189,7 @@ const Lessons = ({
 
         {lessons.length > 3 && visibleLessons < lessons.length && (
           <button
-            style={{
-              color: "#2563eb",
-              fontWeight: "500",
-              background: "none",
-              border: "none",
-              padding: 0,
-              cursor: "pointer",
-            }}
+            className="btn btn-link text-primary p-0 fw-medium"
             onClick={handleViewAll}
           >
             View All
@@ -166,21 +198,86 @@ const Lessons = ({
 
         {visibleLessons === lessons.length && lessons.length > 3 && (
           <button
-            style={{
-              color: "#2563eb",
-              fontWeight: "500",
-              background: "none",
-              border: "none",
-              padding: 0,
-              cursor: "pointer",
-            }}
+            className="btn btn-link text-primary p-0 fw-medium"
             onClick={handleViewLess}
           >
             View Less
           </button>
         )}
       </div>
+
+      {/* Edit Lesson Modal */}
+      <Modal show={editModalShow} onHide={() => setEditModalShow(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Lesson</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {updateError && (
+            <Alert variant="danger" className="mb-3">
+              {updateError}
+            </Alert>
+          )}
+          
+          {currentLesson && (
+            <ReusableForm
+              fields={lessonFields}
+              validationSchema={lessonSchema}
+              onSubmit={handleUpdateLesson}
+              defaultValues={{
+                title: currentLesson.title,
+                description: currentLesson.description,
+              }}
+              footer={(
+                <div className="d-flex justify-content-end mt-3">
+                  <Button 
+                    variant="secondary" 
+                    onClick={() => setEditModalShow(false)}
+                    className="me-2"
+                    disabled={updateLoading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    variant="primary" 
+                    type="submit"
+                    disabled={updateLoading}
+                  >
+                    {updateLoading ? (
+                      <>
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                          className="me-2"
+                        />
+                        Updating...
+                      </>
+                    ) : "Update Lesson"}
+                  </Button>
+                </div>
+              )}
+            />
+          )}
+        </Modal.Body>
+      </Modal>
+
+      {/* Upload Progress Modal */}
+      
     </div>
+    <UploadProgressModal
+        show={showProgressModal}
+        progress={uploadProgress}
+        onClose={() => {
+          // Only allow closing if upload is complete or hasn't started
+          if (uploadProgress >= 100 || uploadProgress === 0) {
+            setShowProgressModal(false);
+          }
+        }}
+        isUploading={uploadProgress > 0 && uploadProgress < 100}
+      />
+    </>
   );
 };
 

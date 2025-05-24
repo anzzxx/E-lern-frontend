@@ -83,7 +83,7 @@ const Navbar = () => {
           {isAuthenticated && (
             <div className="navbar-menu">
               <Link to="/" className="menu-link">Home</Link>
-              <Link to="/courses" className="menu-link">Courses</Link>
+              {/* <Link to="/courses" className="menu-link">Courses</Link> */}
               <Link to="/profile" className="menu-link">Profile</Link>
               <Link to="/messages" className="menu-link">Messages</Link>
               {isSuperuser && (

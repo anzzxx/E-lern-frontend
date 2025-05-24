@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/courseoptions/Header";
 import CoursePreview from "../../components/courseoptions/CoursePreview";
-// import PieChartDetail from "../../components/courseoptions/PieChart";
 import Quizzes from "../../components/courseoptions/Quizzes";
 import Assignments from "../../components/courseoptions/Assignments";
 import Reviews from "../../components/courseoptions/Reviews";
@@ -11,18 +10,22 @@ import * as yup from "yup";
 import ReusableForm from "../../components/ReusableForm";
 import { Modal, Button, Form } from "react-bootstrap";
 import { fetchInstructorCourses } from "../../Redux/Slices/CoursesSlice";
-import { createLesson, updateLesson } from "../../Redux/Slices/lessonsSlice";
+import { fetchReviews } from "../../Redux/Slices/reviewSlice";
+import { createLesson } from "../../Redux/Slices/lessonsSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { SyncLoader } from "react-spinners";
+import UploadProgressModal from "../../components/UploadProgressModal";
+
 function CourseDetailView() {
   const [showModal, setShowModal] = useState(false);
-  const [selectedLesson, setSelectedLesson] = useState(null);
-  const [Lesson, setLesson] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const courseId = parseInt(id, 10);
+
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [showProgressModal, setShowProgressModal] = useState(false);
+
   const [editcourse, setEditCourse] = useState(false);
   const course = useSelector((state) =>
     state.courses.instructorCourses.find((course) => String(course.id) === id)
@@ -30,11 +33,11 @@ function CourseDetailView() {
 
   const handleCreateLessons = () => {
     setShowModal(true);
-    setLesson({});
-    console.log(Lesson, "lessons");
   };
+
   useEffect(() => {
     dispatch(fetchInstructorCourses());
+    dispatch(fetchReviews())
   }, [dispatch, editcourse, showModal]);
 
   const onClose = () => {
@@ -70,6 +73,10 @@ function CourseDetailView() {
 
   const handleCreateLesson = (formData) => {
     setIsLoading(true);
+    setShowModal(false);
+    setShowProgressModal(true);
+    setUploadProgress(0);
+    
     if (!formData.title || !formData.description) {
       console.error("Form Data Missing Required Fields:", formData);
       setIsLoading(false);
@@ -77,12 +84,9 @@ function CourseDetailView() {
     }
 
     const lessonData = new FormData();
-    lessonData.append("title", formData.title || Lesson.title);
-    lessonData.append(
-      "description",
-      formData.description || Lesson.description
-    );
-    lessonData.append("course", courseId || Lesson.course);
+    lessonData.append("title", formData.title);
+    lessonData.append("description", formData.description);
+    lessonData.append("course", courseId);
 
     if (formData.video_file) {
       const videoFile = formData.video_file[0] || formData.video_file;
@@ -91,22 +95,28 @@ function CourseDetailView() {
       }
     }
 
-    if (Lesson) {
-      
-      // Make sure to use the correct parameter names that match the thunk
-      dispatch(updateLesson({ id: Lesson.id, data: lessonData }));
-      setTimeout(() => {
+    dispatch(
+      createLesson({
+        formData: lessonData,
+        setProgress: (progress) => {
+          setUploadProgress(progress);
+        },
+      })
+    )
+      .then((resultAction) => {
+        if (createLesson.fulfilled.match(resultAction)) {
+          console.log("Lesson created successfully");
+        } else {
+          console.error("Lesson creation failed", resultAction.payload);
+        }
+      })
+      .finally(() => {
         setIsLoading(false);
-      }, 2000);
-    } else {
-      dispatch(createLesson(lessonData));
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 2000);
-    }
-
-    setShowModal(false);
-    setSelectedLesson(null);
+        setTimeout(() => {
+          setShowProgressModal(false);
+          setShowModal(false);
+        }, 1000);
+      });
   };
 
   return (
@@ -115,13 +125,14 @@ function CourseDetailView() {
         backgroundColor: "#f3f4f6",
         minHeight: "100vh",
         padding: "10px",
+        width: "100%",
       }}
     >
       <div
         style={{
-          maxWidth: "1280px",
+          maxWidth: "1330px",
           margin: "0 auto",
-          marginLeft: "110px",
+          marginLeft: "10px",
         }}
       >
         <Header setEditCourse={setEditCourse} editcourse={editcourse} />
@@ -150,71 +161,28 @@ function CourseDetailView() {
                 alignItems: "flex-start",
               }}
             >
-              {/* CoursePreview takes 70% width */}
-              <div className="w-full" style={{ flex: "0 0 70%" }}>  {/* Added w-full */}
+              {/* CoursePreview takes 50% width */}
+              <div className="w-full" style={{ flex: "0 0 50%" }}>
                 <CoursePreview
                   course={course}
                   handleCreateLessons={handleCreateLessons}
                   setShowModal={setShowModal}
                   showModal={showModal}
                   isLoading={isLoading}
-                  setLesson={setLesson}
                 />
-
-                {/* Rest of the content */}
-                <Quizzes courseId={courseId} />
               </div>
 
-              {/* PieChart takes 30% width */}
-              <div style={{ flex: "0 0 30%" }}>
-                {/* <PieChart /> */}
+              {/* Quizzes and Reviews take 47% width */}
+              <div style={{ flex: "0 0 47%" }}>
+                <Quizzes courseId={courseId} />
                 <br />
-                <Assignments
-                  items={[
-                    {
-                      name: "Project 1",
-                      dueDate: "May 15, 2024",
-                      status: "Open",
-                    },
-                    {
-                      name: "Project 2",
-                      dueDate: "Add Assignment",
-                      status: "Open",
-                    },
-                    {
-                      name: "Project 2",
-                      dueDate: "Add Assignment",
-                      status: "Open",
-                    },
-                    {
-                      name: "Project 2",
-                      dueDate: "Add Assignment",
-                      status: "Open",
-                    },
-                    {
-                      name: "Project 2",
-                      dueDate: "Add Assignment",
-                      status: "Open",
-                    },
-                  ]}
-                />
+                <Reviews corseId={courseId} />
               </div>
             </div>
-            <Reviews corseId={courseId} />
-          </div>
-
-          {/* Sidebar Column - For Progress */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "24px",
-            }}
-          >
-            {/* <Progress percentage={50} rating={4.5} label="UI/UX Progress" /> */}
           </div>
         </div>
       </div>
+      
       {editcourse && (
         <div
           style={{
@@ -237,19 +205,18 @@ function CourseDetailView() {
 
       <Modal show={showModal} onHide={() => setShowModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>{Lesson ? "Edit Lesson" : "Add New Lesson"}</Modal.Title>
+          <Modal.Title>Add New Lesson</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form.Group className="mb-3">
             <Form.Label>Course</Form.Label>
-            <Form.Control type="text" value={course.title} readOnly />
+            <Form.Control type="text" value={course?.title} readOnly />
           </Form.Group>
 
           <ReusableForm
             fields={lessonFields}
             validationSchema={lessonSchema}
             onSubmit={handleCreateLesson}
-            defaultValues={Lesson}
           />
         </Modal.Body>
         <Modal.Footer>
@@ -258,32 +225,12 @@ function CourseDetailView() {
           </Button>
         </Modal.Footer>
       </Modal>
-      {isLoading ? (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.3)", // Semi-transparent overlay
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1000, // Ensure it's above other elements
-            cursor: "not-allowed", // Optional: Show "busy" cursor
-          }}
-        >
-          <SyncLoader
-            color="#36d7b7" // Customize color
-            loading={isLoading}
-            size={15} // Adjust size
-            speedMultiplier={0.8} // Control animation speed
-          />
-        </div>
-      ) : (
-        ""
-      )}
+      
+      <UploadProgressModal
+        show={showProgressModal}
+        progress={uploadProgress}
+        onClose={() => setShowProgressModal(false)}
+      />
     </div>
   );
 }

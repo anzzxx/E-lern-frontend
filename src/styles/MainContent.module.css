@@ -1,11 +1,11 @@
 .mainContent {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    width: 110%;
     max-width: 896px;
     margin-top:0px;
     margin-left: 0px;
-    background-color: #f87171;
+   
     padding: 16px;
   }
   

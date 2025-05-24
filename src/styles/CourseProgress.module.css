@@ -1,156 +1,313 @@
 /* styles/CourseProgress.module.css */
 .container {
-  width: 100%;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding: 20px 0;
-  background-color: #f5f6f8;
+  width: 80%;
+  padding: 2rem;
+  background-color: #ffffff;
+  margin-left: 270px;
+  margin-top: -160px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+}
+
+.sectionTitle {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 2rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.sectionTitle::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #4361ee, #3a0ca3);
+  border-radius: 2px;
+}
+
+/* Loading state */
+.loadingContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.skeletonCard {
+  background: #fff;
   border-radius: 12px;
-  margin: 0 auto;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
 }
 
-.loadingMessage,
-.errorMessage,
-.noCoursesMessage {
+.skeletonImage {
+  width: 100%;
+  height: 160px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 8px;
+  animation: shimmer 1.5s infinite;
+  margin-bottom: 1rem;
+}
+
+.skeletonText {
+  height: 16px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonText:first-of-type {
+  width: 80%;
+}
+
+.skeletonText:last-of-type {
+  width: 60%;
+}
+
+.skeletonProgress {
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  margin-top: 1rem;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Error state */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
   text-align: center;
-  padding: 20px;
-  white-space: normal;
+  background: #fff8f8;
+  border-radius: 12px;
+  border: 1px dashed #ff6b6b;
 }
 
-.loadingMessage {
-  color: #333;
+.errorIcon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #ff6b6b;
 }
 
-.errorMessage {
-  color: #dc3545;
+.errorContainer p {
+  color: #555;
+  margin-bottom: 1.5rem;
 }
 
-.noCoursesMessage {
-  color: #333;
+.retryButton {
+  padding: 0.75rem 1.5rem;
+  background: #4361ee;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.coursesContainer {
-  display: inline-flex;
-  gap: 20px;
-  padding: 0 15px;
+.retryButton:hover {
+  background: #3a0ca3;
+  transform: translateY(-2px);
+}
+
+/* Courses grid */
+.coursesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
 }
 
 .courseCard {
-  display: inline-block;
-  flex-shrink: 0;
-  width: 20rem;
+  transition: transform 0.3s ease;
+}
+
+.courseCard:hover {
+  transform: translateY(-5px);
 }
 
 .card {
-  width: 20rem;
-  height: 100%;
-  border-radius: 10px;
+  background: white;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-  background-color: #fff;
-  transition: transform 0.2s;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.card:hover {
-  transform: scale(1.02);
+.imageContainer {
+  position: relative;
+  height: 160px;
+  overflow: hidden;
 }
 
 .courseImage {
   width: 100%;
-  height: 180px;
+  height: 100%;
   object-fit: cover;
-  border-bottom: 1px solid #e9ecef;
+  transition: transform 0.5s ease;
 }
 
-.cardBody {
-  padding: 15px;
+.courseCard:hover .courseImage {
+  transform: scale(1.05);
+}
+
+.completedRibbon {
+  position: absolute;
+  top: 1rem;
+  right: -2.5rem;
+  background: #4cc9f0;
+  color: white;
+  padding: 0.25rem 2.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transform: rotate(45deg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cardContent {
+  padding: 1.5rem;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
 .courseTitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 1rem;
   line-height: 1.4;
-  white-space: normal;
-  overflow: hidden;
-  text-overflow: ellipsis;
   display: -webkit-box;
- 
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.courseDetails {
-  font-size: 0.9rem;
-  color: #555;
+.progressContainer {
+  margin-top: auto;
 }
 
-.detailItem {
-  margin: 0;
-}
-
-.lessonCount {
-  margin: 5px 0 0;
-}
-
-.completedBadge {
-  background-color: #28a745;
-  color: #fff;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 0.8rem;
-  margin-left: 8px;
+.progressInfo {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.5rem;
 }
 
 .progressBar {
-  height: 8px;
-  background-color: #e9ecef;
-  border-radius: 4px;
+  height: 6px;
+  background: #f0f0f0;
+  border-radius: 3px;
   overflow: hidden;
+  margin-bottom: 1.5rem;
 }
 
 .progressFill {
   height: 100%;
-  border-radius: 4px;
-  transition: width 0.3s ease-in-out;
-}
-
-.progressIncomplete {
-  background-color: #007bff;
-}
-
-.progressComplete {
-  background-color: #28a745;
+  background: linear-gradient(90deg, #4361ee, #4cc9f0);
+  border-radius: 3px;
+  transition: width 0.5s ease;
 }
 
 .actionButton {
-  margin-top: auto;
-  padding: 8px 0;
-  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(90deg, #4361ee, #3a0ca3);
+  color: white;
   border: none;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  font-weight: 500;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 }
 
-.buttonIncomplete {
-  background-color: #007bff;
+.actionButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
 }
 
-.buttonIncomplete:hover {
-  background-color: #0056b3;
+.buttonIcon {
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
 }
 
-.buttonComplete {
-  background-color: #6c757d;
+.actionButton:hover .buttonIcon {
+  transform: translateX(2px);
 }
 
-.buttonComplete:hover {
-  background-color: #5a6268;
+/* Empty state */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+}
+
+.emptyIllustration {
+  width: 200px;
+  height: 150px;
+  background: #f0f0f0;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.emptyIllustration::before {
+  content: "📚";
+  position: absolute;
+  font-size: 3rem;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.emptyState h3 {
+  font-size: 1.5rem;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.emptyState p {
+  color: #666;
+  margin-bottom: 1.5rem;
+  max-width: 400px;
+}
+
+.exploreButton {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(90deg, #4361ee, #4cc9f0);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.exploreButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
 }

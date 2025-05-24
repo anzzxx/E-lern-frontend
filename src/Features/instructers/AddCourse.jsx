@@ -6,7 +6,8 @@ import ReusableForm from "../../components/ReusableForm";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../../styles/editcourse.css";
 import { SyncLoader } from "react-spinners";
-// Define fields dynamically
+
+
 const courseFields = [
   {
     name: "title",
@@ -54,39 +55,83 @@ const courseValidationSchema = yup.object().shape({
   prev_vdo: yup.mixed().required("Preview video is required"),
 });
 
-const AddCourse = ({ setShowAddForm }) => {
+const AddCourse = ({ setShowAddForm,setUploadProgress,setShowProgressModal }) => {
   const dispatch = useDispatch();
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const handleFormSubmit = async (data) => {
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("description", data.description);
-    formData.append("price", data.price);
-    formData.append("thumbnail", data.thumbnail[0]);
-    formData.append("prev_vdo", data.prev_vdo[0]);
+  
+  // const handleFormSubmit = async (data) => {
+  //   const formData = new FormData();
+  //   formData.append("title", data.title);
+  //   formData.append("description", data.description);
+  //   formData.append("price", data.price);
+  //   formData.append("thumbnail", data.thumbnail[0]);
+  //   formData.append("prev_vdo", data.prev_vdo[0]);
 
-    try {
-      setIsLoading(true);
-      const result = await dispatch(addCourse(formData));
+  //   try {
+  //     setIsLoading(true);
+  //     const result = await dispatch(addCourse(formData));
 
-      if (result?.meta?.requestStatus === "fulfilled") {
-        setMessage({ text: "Course added successfully!", type: "success" });
-        setShowAddForm(false);
-      } else {
-        setMessage({
-          text: result?.payload?.message || "Failed to add course",
-          type: "danger",
-        });
+  //     if (result?.meta?.requestStatus === "fulfilled") {
+  //       setMessage({ text: "Course added successfully!", type: "success" });
+  //       setShowAddForm(false);
+  //     } else {
+  //       setMessage({
+  //         text: result?.payload?.message || "Failed to add course",
+  //         type: "danger",
+  //       });
+  //     }
+  //   } catch (error) {
+  //     setMessage({ text: "Error submitting form", type: "danger" });
+  //     setShowAddForm(false);
+  //     isLoading(false);
+  //   }
+  // };
+  
+  
+
+const handleFormSubmit = async (data) => {
+  const formData = new FormData();
+  formData.append("title", data.title);
+  formData.append("description", data.description);
+  formData.append("price", data.price);
+  formData.append("thumbnail", data.thumbnail[0]);
+  formData.append("prev_vdo", data.prev_vdo[0]);
+
+  try {
+    setIsLoading(true);
+    setShowProgressModal(true)
+    setShowAddForm(false);
+    // Pass both formData and setProgress function
+    const result = await dispatch(addCourse({ 
+      formData, 
+      setProgress: (progress) => {
+        setUploadProgress(progress)
       }
-    } catch (error) {
-      setMessage({ text: "Error submitting form", type: "danger" });
-      setShowAddForm(false);
-      isLoading(false);
+    }));
+
+    if (result?.meta?.requestStatus === "fulfilled") {
+      setMessage({ text: "Course added successfully!", type: "success" });
+      setShowProgressModal(false)
+      setUploadProgress(0);
+    } else {
+      setMessage({
+        text: result?.payload?.message || "Failed to add course",
+        type: "danger",
+      });
     }
-  };
+  } catch (error) {
+    setMessage({ text: "Error submitting form", type: "danger" });
+    setShowAddForm(false);
+    setShowProgressModal(false)
+  } finally {
+    setShowProgressModal(false)
+    setIsLoading(false);
+  }
+};
 
   return (
+    <>
     <div className="page-container">
       {" "}
       {/* Wrapper for centering */}
@@ -102,7 +147,7 @@ const AddCourse = ({ setShowAddForm }) => {
           onSubmit={handleFormSubmit}
         />
       </div>
-      {isLoading ?
+      {/* {isLoading ?
       <div
         style={{
           position: "fixed",
@@ -124,8 +169,15 @@ const AddCourse = ({ setShowAddForm }) => {
           size={15} // Adjust size
           speedMultiplier={0.8} // Control animation speed
         />
-      </div>:""}
+      </div>:""} */}
     </div>
+    {/* <UploadProgressModal
+      show={showProgressModal}
+      progress={uploadProgress}
+      onClose={() => setShowProgressModal(false)}
+    /> */}
+    </>
+
   );
 };
 

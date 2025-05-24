@@ -17,7 +17,9 @@ const StatsCard = ({ type, icon, title, value, bgColor }) => {
         style={bgColor ? { backgroundColor: bgColor } : {}}
       >
         <div className={styles.content}>
-          <img className={styles.icon} src={icon} alt={title} />
+          <div className={styles.iconWrapper}>
+            <img className={styles.icon} src={icon} alt={title} />
+          </div>
           <div className={styles.textWrapper}>
             <h3 className={styles.title}>{title}</h3>
             <p className={styles.value}>{value}</p>

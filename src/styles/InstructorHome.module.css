@@ -3,13 +3,13 @@
     border-radius: 30px;
     background-color: #ffffff;
     overflow: hidden;
-    margin-left: 270px;
+    margin-left: 250px;
     margin-top: 0;
   }
   
   .dashboardLayout {
     display: flex;
-    gap: 30px;
+    gap: 0px;
   }
   
   @media (max-width: 991px) {

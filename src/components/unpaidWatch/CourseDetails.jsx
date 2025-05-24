@@ -146,7 +146,7 @@ function CourseDetails({ selectedCourse }) {
             {user ? (
               !Enrolled ? (
                 <RazorpayButton
-                  amount={Number(selectedCourse?.price || 0) + 10} // Convert to paise
+                  amount={Number(selectedCourse?.price || 0)} // Convert to paise
                   courseId={selectedCourse?.id}
                   userId={user?.id}
                 />

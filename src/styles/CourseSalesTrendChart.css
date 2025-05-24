@@ -1,0 +1,267 @@
+/* Main Card Styles */
+.sales-trend-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 56rem;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.sales-trend-card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Header Styles */
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.chart-title {
+  font-size: 1.5rem;
+  color: #111827;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.chart-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* Legend and Selector Styles */
+.chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+}
+
+.legend-color {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+.purchase-color {
+  background-color: #06b6d4;
+}
+
+.earnings-color {
+  background-color: #6366f1;
+}
+
+.legend-label {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.year-selector {
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  font-size: 0.875rem;
+  color: #1f2937;
+  cursor: pointer;
+  outline: none;
+  width: 7rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.year-selector:focus {
+  border-color: #a5b4fc;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Chart Container Styles */
+.chart-container {
+  flex: 1;
+  position: relative;
+  padding-bottom: 2rem;
+}
+
+/* Grid Styles */
+.chart-grid {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 2rem;
+}
+
+.grid-line-container {
+  position: relative;
+}
+
+.grid-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #f3f4f6;
+}
+
+.grid-label {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-left: -3rem;
+  width: 2.5rem;
+  text-align: right;
+}
+
+/* Bar Chart Styles */
+.chart-bars-container {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 2rem;
+  padding-left: 3rem;
+  padding-right: 1rem;
+}
+
+.chart-bars {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  gap: 0.25rem;
+}
+
+.bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  transition: all 0.2s ease;
+}
+
+.bar-group.hovered {
+  transform: translateY(-2px);
+}
+
+.earnings-bar {
+  background-color: #c7d2fe;
+  border-radius: 0.125rem 0.125rem 0 0;
+  transition: all 0.2s ease;
+}
+
+.earnings-bar.hovered {
+  background-color: #818cf8;
+}
+
+.purchase-bar {
+  background-color: #67e8f9;
+  border-radius: 0.125rem 0.125rem 0 0;
+  transition: all 0.2s ease;
+}
+
+.purchase-bar.hovered {
+  background-color: #06b6d4;
+}
+
+/* Month Labels */
+.month-labels {
+  position: absolute;
+  bottom: 0;
+  left: 3rem;
+  right: 1rem;
+  height: 2rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.month-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-align: center;
+  flex: 1;
+  transition: color 0.2s ease;
+}
+
+.month-label.highlighted {
+  color: #111827;
+  font-weight: 600;
+}
+
+/* Tooltip Styles */
+.chart-tooltip {
+  position: absolute;
+  background: #111827;
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  z-index: 10;
+  transform: translate(-50%, -100%);
+  min-width: 10rem;
+}
+
+.tooltip-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.tooltip-label {
+  display: flex;
+  align-items: center;
+}
+
+.tooltip-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+.purchase-dot {
+  background-color: #06b6d4;
+}
+
+.earnings-dot {
+  background-color: #818cf8;
+}
+
+.tooltip-value {
+  font-weight: 600;
+  margin-left: 1rem;
+}
+
+.tooltip-arrow {
+  position: absolute;
+  bottom: -0.25rem;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: #111827;
+}

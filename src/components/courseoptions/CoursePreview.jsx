@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import Lessons from "../../components/courseoptions/Lessons";
 import { set } from "lodash";
 
-const CoursePreview = ({ course,handleCreateLessons,showModal,isLoading,setLesson,setShowModal }) => {
+const CoursePreview = ({ course,handleCreateLessons,showModal,isLoading,setShowModal }) => {
   const [selectedLesson, setSelectedLesson] = useState(null);
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -22,7 +22,7 @@ const CoursePreview = ({ course,handleCreateLessons,showModal,isLoading,setLesso
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
-  setLesson(selectedLesson);
+  
   const togglePlay = () => {
     if (videoRef.current) {
       if (isPlaying) {

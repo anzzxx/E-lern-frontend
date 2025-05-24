@@ -7,7 +7,7 @@ function InstSidebar() {
 
   return (
     <div className="sidebar">
-      <h2 className="sidebar-title">E-LERN</h2>
+      <h2 onClick={()=>navigate('/')} className="sidebar-title">E-LERN</h2>
       <ul className="sidebar-menu">
         <li className="sidebar-item" onClick={() => navigate("/dashboard")}>Dashboard</li>
         <li className="sidebar-item" onClick={() => navigate("course/")}>Courses</li>

@@ -1,22 +1,20 @@
 import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import api from "../Redux/api";
-import "../styles/test.css";
 import Message from "../components/Message";
 
-const Test = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
+import styles from "../styles/TestModal.module.css";
+
+const TestModal = ({ courseId, onClose, onSuccess }) => {
     const [quizName, setQuizName] = useState("");
-    const [message,setMessage] = useState({});
-    const [ismessage,setIsMessage]=useState(false);
+    const [message, setMessage] = useState({});
+    const [ismessage, setIsMessage] = useState(false);
     const [questions, setQuestions] = useState([
         { id: Date.now(), question: "", answers: ["", ""], correctAnswerIndex: null },
     ]);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState("");
-    const courseId = parseInt(id, 10);
+
     const handleAddQuestion = () => {
         setQuestions([
             ...questions,
@@ -53,12 +51,9 @@ const Test = () => {
     const handleRemoveAnswerField = (qIndex, aIndex) => {
         const updatedQuestions = [...questions];
         if (updatedQuestions[qIndex].answers.length > 2) {
-            // If we're removing the correct answer, reset correctAnswerIndex
             if (updatedQuestions[qIndex].correctAnswerIndex === aIndex) {
                 updatedQuestions[qIndex].correctAnswerIndex = null;
-            }
-            // If we're removing an answer before the correct answer, adjust the index
-            else if (updatedQuestions[qIndex].correctAnswerIndex > aIndex) {
+            } else if (updatedQuestions[qIndex].correctAnswerIndex > aIndex) {
                 updatedQuestions[qIndex].correctAnswerIndex -= 1;
             }
             updatedQuestions[qIndex].answers.splice(aIndex, 1);
@@ -90,7 +85,6 @@ const Test = () => {
                 isValid = false;
             }
     
-            // Check for empty answers and minimum length
             q.answers.forEach((answer, aIndex) => {
                 if (!answer.trim()) {
                     newErrors[`answer_${qIndex}_${aIndex}`] = "Answer cannot be empty";
@@ -123,22 +117,17 @@ const Test = () => {
         setIsSubmitting(true);
 
         try {
-            // 1. Create the test
             const testResponse = await api.post(`mcq/test/create/`, {
                 course: courseId,
                 title: quizName,
             });
-           
             
-            // 2. Create questions and answers
             const questionPromises = questions.map(async (q) => {
                 const questionResponse = await api.post("mcq/question/create/", {
                     test: testResponse.data.id,
                     text: q.question,
                 });
-            console.log("Question Response:", questionResponse.data);
             
-                // Create answers for this question
                 const answerPromises = q.answers.map((answer, aIndex) => 
                     api.post("mcq/answer/create/", {
                         question: questionResponse.data.id,
@@ -156,143 +145,155 @@ const Test = () => {
             setTimeout(() => {
                 setIsMessage(false);
                 setMessage({});
-                navigate(`/instructor/course/${courseId}`);
+                onSuccess();
+                onClose();
             }, 3000);
             
-            
         } catch (error) {
-
             setSubmitError("Failed to create quiz. Please try again.");
             setIsMessage(true);
             setMessage({type:"error",message:"Failed to create quiz. Please try again."});
             setTimeout(() => {
                 setIsMessage(false);
                 setMessage({});
-                navigate(`/instructor/course/${courseId}`);
             }, 3000);
-        }
-        finally {
+        } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="appn">
-            <header className="header">
-                <h1>Create New Quiz</h1>
-            </header>
+        <div className={styles.modalOverlay}>
+            <div className={styles.modalContent}>
+                <div className={styles.modalHeader}>
+                    <h2 className={styles.modalTitle}>Create New Quiz</h2>
+                    <button className={styles.closeButton} onClick={onClose}>
+                        &times;
+                    </button>
+                </div>
 
-            <div className="form-group">
-                <label>Quiz Name</label>
-                <input
-                    type="text"
-                    value={quizName}
-                    onChange={(e) => setQuizName(e.target.value)}
-                    placeholder="Enter your quiz name"
-                    required
-                    disabled={isSubmitting}
-                />
-                {errors.quizName && <p className="error">{errors.quizName}</p>}
-            </div>
+                <div className={styles.formGroup}>
+                    <label>Quiz Name</label>
+                    <input
+                        type="text"
+                        className={styles.inputField}
+                        value={quizName}
+                        onChange={(e) => setQuizName(e.target.value)}
+                        placeholder="Enter your quiz name"
+                        required
+                        disabled={isSubmitting}
+                    />
+                    {errors.quizName && <p className={styles.errorText}>{errors.quizName}</p>}
+                </div>
 
-            {questions.map((q, qIndex) => (
-                <div key={q.id} className="create-quiz">
-                    <div className="form-group">
-                        <label>Question {qIndex + 1}</label>
-                        <input
-                            type="text"
-                            value={q.question}
-                            onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
-                            placeholder="Enter your question"
-                            required
-                            disabled={isSubmitting}
-                        />
-                        {errors[`question_${qIndex}`] && (
-                            <p className="error">{errors[`question_${qIndex}`]}</p>
-                        )}
-                        {questions.length > 1 && (
-                            <button
-                                type="button"
-                                className="remove-btn"
-                                onClick={() => handleRemoveQuestion(qIndex)}
-                                disabled={isSubmitting}
-                            >
-                                ❌ Remove Question
-                            </button>
-                        )}
-                    </div>
-
-                    {q.answers.map((answer, aIndex) => (
-                        <div className="form-group answer-group" key={aIndex}>
-                            <label>
-                                <input
-                                    type="radio"
-                                    name={`correctAnswer-${qIndex}`}
-                                    checked={q.correctAnswerIndex === aIndex}
-                                    onChange={() => handleCorrectAnswerChange(qIndex, aIndex)}
-                                    disabled={isSubmitting || !answer.trim()}
-                                />
-                                Answer {aIndex + 1}
-                            </label>
+                {questions.map((q, qIndex) => (
+                    <div key={q.id} className={styles.quizCard}>
+                        <div className={styles.formGroup}>
+                            <label>Question {qIndex + 1}</label>
                             <input
                                 type="text"
-                                value={answer}
-                                onChange={(e) => handleAnswerChange(qIndex, aIndex, e.target.value)}
-                                placeholder="Enter answer"
+                                className={styles.inputField}
+                                value={q.question}
+                                onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
+                                placeholder="Enter your question"
                                 required
                                 disabled={isSubmitting}
                             />
-                            {errors[`answer_${qIndex}_${aIndex}`] && (
-                                <p className="error">{errors[`answer_${qIndex}_${aIndex}`]}</p>
+                            {errors[`question_${qIndex}`] && (
+                                <p className={styles.errorText}>{errors[`question_${qIndex}`]}</p>
                             )}
-                            {q.answers.length > 2 && (
+                            {questions.length > 1 && (
                                 <button
                                     type="button"
-                                    className="remove-btn"
-                                    onClick={() => handleRemoveAnswerField(qIndex, aIndex)}
+                                    className={`${styles.button} ${styles.dangerButton}`}
+                                    onClick={() => handleRemoveQuestion(qIndex)}
                                     disabled={isSubmitting}
                                 >
-                                    ❌
+                                    Remove Question
                                 </button>
                             )}
                         </div>
-                    ))}
 
+                        {q.answers.map((answer, aIndex) => (
+                            <div className={styles.answerGroup} key={aIndex}>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        className={styles.radioInput}
+                                        name={`correctAnswer-${qIndex}`}
+                                        checked={q.correctAnswerIndex === aIndex}
+                                        onChange={() => handleCorrectAnswerChange(qIndex, aIndex)}
+                                        disabled={isSubmitting || !answer.trim()}
+                                    />
+                                    Answer {aIndex + 1}
+                                </label>
+                                <input
+                                    type="text"
+                                    className={`${styles.inputField} ${styles.answerInput}`}
+                                    value={answer}
+                                    onChange={(e) => handleAnswerChange(qIndex, aIndex, e.target.value)}
+                                    placeholder="Enter answer"
+                                    required
+                                    disabled={isSubmitting}
+                                />
+                                {errors[`answer_${qIndex}_${aIndex}`] && (
+                                    <p className={styles.errorText}>{errors[`answer_${qIndex}_${aIndex}`]}</p>
+                                )}
+                                {q.answers.length > 2 && (
+                                    <button
+                                        type="button"
+                                        className={`${styles.button} ${styles.dangerButton}`}
+                                        onClick={() => handleRemoveAnswerField(qIndex, aIndex)}
+                                        disabled={isSubmitting}
+                                    >
+                                        Remove
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+
+                        <div className={styles.actionsContainer}>
+                            <button
+                                type="button"
+                                className={`${styles.button} ${styles.secondaryButton} ${styles.addAnswerButton}`}
+                                onClick={() => handleAddAnswerField(qIndex)}
+                                disabled={q.answers.length >= 4 || isSubmitting}
+                            >
+                                {q.answers.length >= 4 ? "Max Answers Reached" : "+ Add Answer"}
+                            </button>
+                        </div>
+
+                        {errors[`correct_${qIndex}`] && (
+                            <p className={styles.errorText}>{errors[`correct_${qIndex}`]}</p>
+                        )}
+                    </div>
+                ))}
+
+                <div className={styles.actionsContainer}>
                     <button
                         type="button"
-                        onClick={() => handleAddAnswerField(qIndex)}
-                        disabled={q.answers.length >= 4 || isSubmitting}
+                        className={`${styles.button} ${styles.primaryButton}`}
+                        onClick={handleAddQuestion}
+                        disabled={isSubmitting}
                     >
-                        {q.answers.length >= 4 ? "Max Answers Reached" : "Add Answer"}
+                        + Add New Question
                     </button>
-
-                    {errors[`correct_${qIndex}`] && (
-                        <p className="error">{errors[`correct_${qIndex}`]}</p>
-                    )}
                 </div>
-            ))}
 
-            <button
-                type="button"
-                onClick={handleAddQuestion}
-                disabled={isSubmitting}
-            >
-                Add New Question
-            </button>
+                <button
+                    type="button"
+                    className={`${styles.button} ${styles.submitButton}`}
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                >
+                    {isSubmitting ? "Submitting..." : "Submit Quiz"}
+                </button>
 
-            <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-            >
-                {isSubmitting ? "Submitting..." : "Submit Quiz"}
-            </button>
-
-            {submitError && <p className="error">{submitError}</p>}
-
-            {ismessage && <Message type={message.type} message={message.message} />}
+                {submitError && <p className={styles.errorText}>{submitError}</p>}
+                {ismessage && <Message type={message.type} message={message.message} />}
+            </div>
         </div>
     );
 };
 
-export default Test;
+export default TestModal;

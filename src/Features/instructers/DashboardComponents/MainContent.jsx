@@ -25,6 +25,7 @@ const MainContent = () => {
   }
 
   return (
+    <>
     <section className={styles.mainContent}>
       <header>
         <div>
@@ -34,7 +35,7 @@ const MainContent = () => {
           
         </div>
       </header>
-
+     
       <section className={styles.statsSection}>
         <StatsCard
           type="revenue"
@@ -43,13 +44,13 @@ const MainContent = () => {
           value={totalEarnings}
           bgColor="#fff7ed"
         />
-        <StatsCard
+        {/* <StatsCard
           type="ratings"
           icon="https://cdn.builder.io/api/v1/image/assets/TEMP/5d74167e123d72ec86f34413750c2b737775b962"
           title="Average Rating"
           value={`${avgRating}/5`}
           bgColor="#f4f6dc"
-        />
+        /> */}
         <StatsCard
           type="students"
           icon="https://cdn.builder.io/api/v1/image/assets/TEMP/78b05c95266d781689a3e739c8efe17affef2767"
@@ -67,12 +68,14 @@ const MainContent = () => {
       </section>
 
       <section className={styles.overviewSection}>
-        
+         <CourseSalesTrendChart />
       </section>
-      <CourseSalesTrendChart />
+      
       <br />
       <PurchaseHistoryTable />
     </section>
+    
+    </>
   );
 };
 

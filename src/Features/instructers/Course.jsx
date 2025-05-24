@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchInstructorCourses } from "../../Redux/Slices/CoursesSlice";
 import ReusableTable from "../../components/ReusableTable";
+import UploadProgressModal from "../../components/UploadProgressModal";
 import AddCourse from "../../Features/instructers/AddCourse";
 import { PiFolderPlusBold } from "react-icons/pi";
 import { IoMdOpen } from "react-icons/io";
 import { handleLogout } from "../../components/Logout";
 import Reusablesidebar from "../../components/Reusablesidebar";
-import SearchFilter from "../../components/SearchFilter"; // Import SearchFilter component
-import ReactPaginate from "react-paginate"; // Import pagination library
+import SearchFilter from "../../components/searchfilter";
+import ReactPaginate from "react-paginate";
 import { useNavigate } from "react-router-dom";
 import "../../styles/addcourse.css";
 
@@ -20,24 +21,34 @@ function Course() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showfilter, setShowFilter] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
-  const courses = instructorCourses || [];
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0); // New state for forcing refresh
 
+  const courses = instructorCourses || [];
   const user_id = useSelector((state) => state.auth.user?.id);
-  const userCourses = courses.filter((course) => course.instructor && course.instructor.user_id === user_id);
-  console.log("user course",userCourses);
-  
+  const userCourses = courses.filter(
+    (course) => course.instructor && course.instructor.user_id === user_id
+  );
+
+  // Fetch courses on initial load and when refreshKey changes
   useEffect(() => {
-    if (showAddForm) {
+    dispatch(fetchInstructorCourses());
+  }, [dispatch, refreshKey]);
+
+  // Handle upload completion
+  useEffect(() => {
+    if (uploadProgress === 100) {
       const timer = setTimeout(() => {
-        dispatch(fetchInstructorCourses());
+        setRefreshKey(prev => prev + 1); // Force refresh
+        setShowProgressModal(false);
+        setShowAddForm(false);
+        setShowFilter(true);
+        setUploadProgress(0); // Reset progress
       }, 1000);
       return () => clearTimeout(timer);
-    } else {
-      dispatch(fetchInstructorCourses());
     }
-  }, [dispatch, showAddForm]);
-
-
+  }, [uploadProgress]);
 
   const columns = [
     { label: "ID", field: "id" },
@@ -50,8 +61,10 @@ function Course() {
       field: "action",
       render: (course) => (
         <div className="action-icons">
-          {/* <FaEdit className="delete-icon" onClick={() => handleEdit(course)} /> */}
-          <IoMdOpen className="delete-icon" onClick={() => navigate(`/instructor/course/${course.id}`)} />
+          <IoMdOpen
+            className="delete-icon"
+            onClick={() => navigate(`/instructor/course/${course.id}`)}
+          />
           <button>Publish the Course</button>
         </div>
       ),
@@ -67,8 +80,7 @@ function Course() {
     { label: "Logout", onClick: handleLogout },
   ];
 
-  // **Pagination Logic**
-  const itemsPerPage = 2; // Show only 1 course per page
+  const itemsPerPage = 8;
   const pageCount = Math.ceil(filteredCourses.length / itemsPerPage);
 
   const handlePageClick = ({ selected }) => {
@@ -99,19 +111,22 @@ function Course() {
           onClick={() => {
             setShowAddForm(!showAddForm);
             setShowFilter(false);
-            setShowEditForm(false);
           }}
         />
       </div>
 
-      {showAddForm && <AddCourse setShowAddForm={setShowAddForm} />}
-
+      {showAddForm && (
+        <AddCourse
+          setShowAddForm={setShowAddForm}
+          setUploadProgress={setUploadProgress}
+          setShowProgressModal={setShowProgressModal}
+        />
+      )}
 
       {!showAddForm && (
         <>
           <ReusableTable columns={columns} data={displayedCourses} />
 
-          {/* Pagination Component */}
           <ReactPaginate
             previousLabel={"← Previous"}
             nextLabel={"Next →"}
@@ -126,6 +141,15 @@ function Course() {
             previousClassName={"page-item"}
             nextClassName={"page-item"}
             breakClassName={"page-item"}
+          />
+
+          <UploadProgressModal
+            show={showProgressModal}
+            progress={uploadProgress}
+            onClose={() => {
+              setShowProgressModal(false);
+              setRefreshKey(prev => prev + 1); // Force refresh when modal is closed
+            }}
           />
         </>
       )}
