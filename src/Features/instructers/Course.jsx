@@ -8,7 +8,8 @@ import { PiFolderPlusBold } from "react-icons/pi";
 import { IoMdOpen } from "react-icons/io";
 import { handleLogout } from "../../components/Logout";
 import Reusablesidebar from "../../components/Reusablesidebar";
-import SearchFilter from "../../components/searchfilter";
+import SearchFilter from '../../components/SearchFilter';
+
 import ReactPaginate from "react-paginate";
 import { useNavigate } from "react-router-dom";
 import "../../styles/addcourse.css";
