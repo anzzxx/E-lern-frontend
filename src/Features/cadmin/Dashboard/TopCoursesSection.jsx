@@ -4,15 +4,27 @@ import { fetchCourseReports } from "../../../Redux/Slices/ReportedCourseSlice";
 import { fetchInstructors } from "../../../Redux/Slices/InstructorsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { STATIC_URL } from "../../../Redux/api";
-export default function CourseManagementSection() {
+
+// Create a separate component for the sidebar cards
+const SidebarCard = ({ title, viewAllText, children }) => {
+  return (
+    <section className="vertical-card">
+      <div className="section-header">
+        <h2 className="section-title">{title}</h2>
+        <button className="view-all">{viewAllText}</button>
+      </div>
+      <div className="items-list">{children}</div>
+    </section>
+  );
+};
+
+export default function CourseManagementSidebar() {
   const dispatch = useDispatch();
   const { requests, status, error } = useSelector(
     (state) => state.courseRequests
   );
   const { reports } = useSelector((state) => state.courseReports);
   const { instructors } = useSelector((state) => state.instructors);
-
-  console.log("instructors ", instructors);
 
   useEffect(() => {
     dispatch(fetchInactiveCourseRequests());
@@ -30,7 +42,6 @@ export default function CourseManagementSection() {
       };
     }
     acc[report.course].reports.push(report);
-    // Keep the latest report date
     if (new Date(report.created_at) > new Date(acc[report.course].latestDate)) {
       acc[report.course].latestDate = report.created_at;
     }
@@ -54,41 +65,6 @@ export default function CourseManagementSection() {
     return reasons[0];
   };
 
-  const paymentReminders = [
-    {
-      image:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/0c9f642b42ee6d9b1c8da5a397f2d28c9a86d784?placeholderIfAbsent=true&apiKey=34d728b774e44ebe92ee1866d5dfa190",
-      instructor: "John Smith",
-      amount: "$1,200",
-      date: "Due in 5 days",
-      status: "Pending",
-    },
-    {
-      image:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/0c9f642b42ee6d9b1c8da5a397f2d28c9a86d784?placeholderIfAbsent=true&apiKey=34d728b774e44ebe92ee1866d5dfa190",
-      instructor: "John Smith",
-      amount: "$1,200",
-      date: "Due in 5 days",
-      status: "Pending",
-    },
-    {
-      image:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/0c9f642b42ee6d9b1c8da5a397f2d28c9a86d784?placeholderIfAbsent=true&apiKey=34d728b774e44ebe92ee1866d5dfa190",
-      instructor: "Emma Wilson",
-      amount: "$950",
-      date: "Due yesterday",
-      status: "Paid",
-    },
-    {
-      image:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/0c9f642b42ee6d9b1c8da5a397f2d28c9a86d784?placeholderIfAbsent=true&apiKey=34d728b774e44ebe92ee1866d5dfa190",
-      instructor: "Emma Wilson",
-      amount: "$950",
-      date: "Due yesterday",
-      status: "Paid",
-    },
-  ];
-
   const statusStyles = {
     Pending: { bg: "#FFF3CD", color: "#856404" },
     "Under Review": { bg: "#D1ECF1", color: "#0C5460" },
@@ -104,163 +80,160 @@ export default function CourseManagementSection() {
   };
 
   return (
-    <div className="dashboard-section">
-      {/* Course Requests Section */}
-      <section className="vertical-card">
-        <div className="section-header">
-          <h2 className="section-title">Course Requests</h2>
-          <button className="view-all">View all requests</button>
-        </div>
-        <div className="items-list">
-          {requests.map((request, index) => {
-            const formattedDate = new Date(
-              request.created_at
-            ).toLocaleDateString("en-US", {
+    <div className="sidebar-container">
+      {/* Course Requests Card */}
+      <SidebarCard title="Course Requests" viewAllText="View all requests">
+        {requests.map((request, index) => {
+          const formattedDate = new Date(request.created_at).toLocaleDateString(
+            "en-US",
+            {
               year: "numeric",
               month: "short",
               day: "numeric",
-            });
-            return (
-              <div key={index} className="item-card">
-                <div className="item-info">
-                  <img
-                    src={request.thumbnail.replace("image/upload/", "")}
-                    alt={request.title}
-                    className="item-image"
-                  />
-                  <div className="item-details">
-                    <h3 className="item-name">{request.title}</h3>
-                    <div className="meta-info">
-                      <span>Requested By :{request.instructor}</span>
-                      <span>•</span>
-                      <span>{formattedDate}</span>
-                    </div>
-                  </div>
-                </div>
-                <span
-                  className="status-badge"
-                  style={{
-                    backgroundColor: statusStyles[request.status]?.bg,
-                    color: statusStyles[request.status]?.color,
-                  }}
-                >
-                  {request.status}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* User Reported Courses Section */}
-      <section className="vertical-card">
-        <div className="section-header">
-          <h2 className="section-title">User Reported Courses</h2>
-          <button className="view-all">View all reports</button>
-        </div>
-        <div className="items-list">
-          {sortedGroupedReports.map((group) => {
-            const reportCount = group.reports.length;
-            const mainReason = getHighestSeverityReason(group.reports);
-
-            let severity = "medium";
-            if (
-              mainReason.includes("inappropriate_content") ||
-              mainReason.includes("technical problems")
-            ) {
-              severity = "high";
-            } else if (mainReason === "no reason") {
-              severity = "low";
             }
-
-            const latestDate = new Date(group.latestDate);
-            const formattedDate = latestDate.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            });
-
-            return (
-              <div key={group.courseId} className="item-card">
-                <div className="item-info">
-                  <div className="item-details">
-                    <h3 className="item-name">Course ID: {group.courseId}</h3>
-                    <div className="meta-info">
-                      <span className="report-count">
-                        {reportCount} {reportCount === 1 ? "report" : "reports"}
-                      </span>
-                      <span>•</span>
-                      <span>{mainReason.replace(/_/g, " ")}</span>
-                      <span>•</span>
-                      <span>{formattedDate}</span>
-                    </div>
-                  </div>
-                </div>
-                <span
-                  className="severity-badge"
-                  style={{
-                    backgroundColor: reportSeverityStyles[severity].bg,
-                    color: reportSeverityStyles[severity].color,
-                  }}
-                >
-                  {severity === "high"
-                    ? "High Priority"
-                    : severity === "medium"
-                    ? "Medium Priority"
-                    : "Low Priority"}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Payment Reminder Section */}
-      <section className="vertical-card">
-        <div className="section-header">
-          <h2 className="section-title">Instructors</h2>
-          <button className="view-all">View all instructors</button>
-        </div>
-        <div className="items-list">
-          {instructors.slice(0, 5).map((instructor, index) => (
+          );
+          return (
             <div key={index} className="item-card">
               <div className="item-info">
                 <img
-                  src={`${STATIC_URL}${instructor.profile_picture}` || "/default-profile.png"}
-                  alt={instructor.name}
+                  src={request.thumbnail.replace("image/upload/", "")}
+                  alt={request.title}
                   className="item-image"
                 />
                 <div className="item-details">
-                  <h3 className="item-name">{instructor.name}</h3>
+                  <h3 className="item-name">{request.title}</h3>
                   <div className="meta-info">
-                    <span>{instructor.bio}</span>
+                    <span>Requested By: {request.instructor}</span>
                     <span>•</span>
-                    <span>{instructor.organisation}</span>
+                    <span>{formattedDate}</span>
                   </div>
                 </div>
               </div>
               <span
                 className="status-badge"
                 style={{
-                  backgroundColor: "#e3f5ff",
-                  color: "#0c66ff",
+                  backgroundColor: statusStyles[request.status]?.bg,
+                  color: statusStyles[request.status]?.color,
                 }}
               >
-                {instructor.experience}
+                {request.status}
               </span>
             </div>
-          ))}
-        </div>
-      </section>
+          );
+        })}
+      </SidebarCard>
+
+      {/* User Reported Courses Card */}
+      <SidebarCard title="User Reported Courses" viewAllText="View all reports">
+        {sortedGroupedReports.map((group) => {
+          const reportCount = group.reports.length;
+          const mainReason = getHighestSeverityReason(group.reports);
+
+          let severity = "medium";
+          if (
+            mainReason.includes("inappropriate_content") ||
+            mainReason.includes("technical problems")
+          ) {
+            severity = "high";
+          } else if (mainReason === "no reason") {
+            severity = "low";
+          }
+
+          const latestDate = new Date(group.latestDate);
+          const formattedDate = latestDate.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          });
+
+          return (
+            <div key={group.courseId} className="item-card">
+              <div className="item-info">
+                <div className="item-details">
+                  <h3 className="item-name">Course ID: {group.courseId}</h3>
+                  <div className="meta-info">
+                    <span className="report-count">
+                      {reportCount} {reportCount === 1 ? "report" : "reports"}
+                    </span>
+                    <span>•</span>
+                    <span>{mainReason.replace(/_/g, " ")}</span>
+                    <span>•</span>
+                    <span>{formattedDate}</span>
+                  </div>
+                </div>
+              </div>
+              <span
+                className="severity-badge"
+                style={{
+                  backgroundColor: reportSeverityStyles[severity].bg,
+                  color: reportSeverityStyles[severity].color,
+                }}
+              >
+                {severity === "high"
+                  ? "High Priority"
+                  : severity === "medium"
+                  ? "Medium Priority"
+                  : "Low Priority"}
+              </span>
+            </div>
+          );
+        })}
+      </SidebarCard>
+
+      {/* Instructors Card */}
+      <SidebarCard title="Instructors" viewAllText="View all instructors">
+        {instructors.slice(0, 5).map((instructor, index) => (
+          <div key={index} className="item-card">
+            <div className="item-info">
+              <img
+                src={
+                  `${STATIC_URL}${instructor.profile_picture}` ||
+                  "/default-profile.png"
+                }
+                alt={instructor.name}
+                className="item-image"
+              />
+              <div className="item-details">
+                <h3 className="item-name">{instructor.name}</h3>
+                <div className="meta-info">
+                  <span>{instructor.bio}</span>
+                  <span>•</span>
+                  <span>{instructor.organisation}</span>
+                </div>
+              </div>
+            </div>
+            <span
+              className="status-badge"
+              style={{
+                backgroundColor: "#e3f5ff",
+                color: "#0c66ff",
+              }}
+            >
+              {instructor.experience}
+            </span>
+          </div>
+        ))}
+      </SidebarCard>
 
       <style jsx>{`
-        .dashboard-section {
+        .sidebar-container {
           display: flex;
           flex-direction: column;
           gap: 20px;
-          width: 100%;
-          max-width: 800px;
-          margin: 0 auto;
+          width: 350px;
+          height: 130vh;
+          overflow-y: auto;
+          padding: 20px;
+
+          position: sticky;
+          margin-top: 185px;
+          margin-left: 80px;
+
+          &::-webkit-scrollbar {
+            display: none;
+          }
+          -ms-overflow-style: none; /* IE and Edge */
+          scrollbar-width: none; /* Firefox */
         }
 
         .vertical-card {
@@ -374,6 +347,16 @@ export default function CourseManagementSection() {
           font-weight: 500;
           text-transform: capitalize;
           white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+          .sidebar-container {
+            width: 100%;
+            height: auto;
+            position: relative;
+            border-left: none;
+            border-top: 1px solid #e0e0e0;
+          }
         }
 
         @media (max-width: 600px) {

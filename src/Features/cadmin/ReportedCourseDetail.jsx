@@ -6,6 +6,7 @@ const ReportedCoursePopup = ({ report, onClose }) => {
   const navigate=useNavigate()
   const handleVerify = () => {
     alert(`Verified report ID: ${report.id}`);
+    navigate(`/instructor/course/${report.course.id}`)
   };
 
   const handleDismiss = () => {
@@ -88,14 +89,14 @@ const ReportedCoursePopup = ({ report, onClose }) => {
           </div>
         </div>
 
-        <div style={styles.actions}>
+        {/* <div style={styles.actions}>
           <button style={styles.dismissBtn} onClick={handleDismiss}>
             Dismiss Report
           </button>
           <button style={styles.verifyBtn} onClick={handleVerify}>
             Verify Report
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
     

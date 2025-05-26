@@ -28,12 +28,13 @@ export default function WelcomeCard() {
           border-radius: 16px;
           background: linear-gradient(135deg, #702dff 0%, #8a5cff 100%);
           display: flex;
-          max-width: 1240px;
+          width: 115%;
           height: 150px;
           padding: 20px 24px;
           align-items: center;
           gap: 24px;
           box-shadow: 0 4px 12px rgba(112, 45, 255, 0.2);
+          margin-left:300px;
           position: relative;
           overflow: hidden;
         }

@@ -1,105 +1,170 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
-
 export default function StatisticsSection() {
-  const {allCourses}=useSelector((state)=>state.courses)
-  const totelCourse=allCourses.length
+  const { allCourses } = useSelector((state) => state.courses);
+  const totalCourse = allCourses.length;
+  
   const metrics = [
     {
-      image: "https://cdn.builder.io/api/v1/image/assets/TEMP/1f8dd4be790e531a4f90e6ac306f29dd0044c98c?placeholderIfAbsent=true&apiKey=34d728b774e44ebe92ee1866d5dfa190",
-      value: totelCourse ?? 0,
+      icon: "📚",
+      value: totalCourse ?? 0,
       label: "Total Courses",
+      color: "linear-gradient(135deg, #6e3aff 0%, #9b7aff 100%)",
     },
     {
-      image: "https://cdn.builder.io/api/v1/image/assets/TEMP/cd6a912297f4a5f10f3b47cf03e7fa4acd494e44?placeholderIfAbsent=true&apiKey=34d728b774e44ebe92ee1866d5dfa190",
-      value: "10,000",
+      icon: "👨‍🎓",
+      value: "10,000+",
       label: "Enrolled Students",
+      color: "linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)",
     },
     {
-      image: "https://cdn.builder.io/api/v1/image/assets/TEMP/99672ace1bd49512fc9b0b2d679ebba49ac33fd6?placeholderIfAbsent=true&apiKey=34d728b774e44ebe92ee1866d5dfa190",
-      value: "$500,000",
+      icon: "💰",
+      value: "$500K+",
       label: "Revenue Generated",
+      color: "linear-gradient(135deg, #2af598 0%, #009efd 100%)",
     },
   ];
 
   return (
-    
     <section className="statistics-section">
-    
-      <br />
       <div className="metrics-grid">
         {metrics.map((metric, index) => (
-          <article key={index} className="metric-card">
+          <article key={index} className="metric-card" style={{ background: metric.color }}>
             <div className="card-content">
-              <img src={metric.image} alt={metric.label} className="metric-image" />
+              <div className="metric-icon">{metric.icon}</div>
               <div className="metric-info">
                 <p className="metric-value">{metric.value}</p>
                 <p className="metric-label">{metric.label}</p>
               </div>
             </div>
+            <div className="card-decoration"></div>
           </article>
         ))}
       </div>
 
       <style jsx>{`
         .statistics-section {
-          margin-top: -47px;
+          width: 72%;
+          margin-left: 300px;
+          
+          margin-bottom: 40px;
         }
-        .section-title {
-          color: #4c4c4c;
-          font-size: 18px;
-          font-weight: 600;
-          line-height: 32px;
-          margin-left:"0px";
-
-        }
+        
         .metrics-grid {
-          display: flex;
-          gap: 32px;
-          flex-wrap: wrap;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
         }
+        
         .metric-card {
-          border-radius: 4px;
-          width: 227px;
+          border-radius: 16px;
           overflow: hidden;
+          position: relative;
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s ease;
+          aspect-ratio: 1/1;
         }
+        
+        .metric-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
         .card-content {
+          padding: 24px;
           position: relative;
-          aspect-ratio: 2.837;
-          width: 100%;
-        }
-        .metric-image {
-          position: absolute;
-          inset: 0;
+          z-index: 2;
+          display: flex;
+          flex-direction: column;
           height: 100%;
-          width: 100%;
-          object-fit: cover;
+          justify-content: space-between;
         }
+        
+        .metric-icon {
+          font-size: 32px;
+          opacity: 0.9;
+        }
+        
         .metric-info {
-          position: relative;
-          border-radius: 4px;
-          background-color: rgba(33, 33, 33, 1);
-          padding: 19px 11px 10px;
           color: white;
         }
+        
         .metric-value {
-          font-size: 24px;
-          font-weight: 600;
+          font-size: 28px;
+          font-weight: 700;
           line-height: 1;
-          margin: 0;
+          margin: 0 0 8px 0;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+        
         .metric-label {
-          font-size: 12px;
-          margin: 11px 0 0;
+          font-size: 14px;
+          font-weight: 500;
+          margin: 0;
+          opacity: 0.9;
         }
-        @media (max-width: 991px) {
+        
+        .card-decoration {
+          position: absolute;
+          top: -20px;
+          right: -20px;
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.15);
+          z-index: 1;
+        }
+        
+        @media (max-width: 1200px) {
           .statistics-section {
-            margin-bottom: 40px;
+            width: calc(100% - 350px);
+            margin-left: 300px;
+          }
+        }
+        
+        @media (max-width: 992px) {
+          .statistics-section {
+            width: calc(100% - 60px);
+            margin-left: 40px;
+          }
+          
+          .metrics-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        
+        @media (max-width: 768px) {
+          .statistics-section {
+            width: calc(100% - 40px);
+            margin-left: 20px;
+          }
+          
+          .metrics-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+          
+          .metric-card {
+            aspect-ratio: 2/1;
+          }
+        }
+        
+        @media (max-width: 576px) {
+          .statistics-section {
+            width: calc(100% - 30px);
+            margin-left: 15px;
+          }
+          
+          .card-content {
+            padding: 20px;
+          }
+          
+          .metric-value {
+            font-size: 24px;
           }
         }
       `}</style>
     </section>
-
   );
 }

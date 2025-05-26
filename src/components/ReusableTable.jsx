@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import "../styles/table.css";
+import { FaSync } from "react-icons/fa";
 
-const ReusableTable = ({ columns, data }) => {
+const ReusableTable = ({ columns, data, onRefresh }) => {
   const [expandedCells, setExpandedCells] = useState({});
-
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  
   const toggleExpand = (rowId, columnField) => {
     setExpandedCells(prev => ({
       ...prev,
@@ -11,8 +13,32 @@ const ReusableTable = ({ columns, data }) => {
     }));
   };
 
+  const handleRefresh = async () => {
+    if (!onRefresh) return;
+    
+    try {
+      setIsRefreshing(true);
+      await onRefresh();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   return (
     <div className="table-container">
+      <div className="table-header">
+        {onRefresh && (
+          <button 
+            onClick={handleRefresh} 
+            className="refresh-button"
+            disabled={isRefreshing}
+            aria-label="Refresh table data"
+          >
+            <FaSync className={`refresh-icon ${isRefreshing ? 'spinning' : ''}`} />
+            <span className="refresh-text">Refresh</span>
+          </button>
+        )}
+      </div>
       <table className="modern-table">
         <thead>
           <tr>

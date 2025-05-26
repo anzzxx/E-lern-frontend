@@ -149,7 +149,7 @@ function Course() {
             progress={uploadProgress}
             onClose={() => {
               setShowProgressModal(false);
-              setRefreshKey(prev => prev + 1); // Force refresh when modal is closed
+              setRefreshKey(prev => prev + 1); 
             }}
           />
         </>

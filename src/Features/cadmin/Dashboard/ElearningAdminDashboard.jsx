@@ -11,71 +11,73 @@ export default function ElearningAdminDashboard() {
   return (
     <main className="dashboard-container">
       <div className="dashboard-layout">
+        {/* Main Content Area */}
         <section className="main-content">
-          <DashboardHeader />
+          {/* <DashboardHeader /> */}
           <br />
           <WelcomeCard/>
-          <br />
-          <div className="content-wrapper">
-            <div className="content-grid">
-              <div className="content-main">
-                <StatisticsSection />
-                <br />
-                <ElearningStatisticsCard/>
-                <br />
-                <CoursesTable />
-              </div>
-              <br />
-              <aside className="content-sidebar">
-                <TopCoursesSection />
-              </aside>
-            </div>
-          </div>
           
+          <div className="content-wrapper">
+            {/* <StatisticsSection /> */}
+            <br />
+            <ElearningStatisticsCard/>
+            <br />
+            <CoursesTable />
+          </div>
         </section>
+
+        {/* Right Sidebar */}
+        <aside className="right-sidebar">
+          <TopCoursesSection />
+        </aside>
       </div>
+
       <style jsx>{`
         .dashboard-container {
           background-color: #fff;
-          padding-right: 77px;
+          padding: 20px;
           overflow: hidden;
         }
+        
         .dashboard-layout {
           display: flex;
           gap: 20px;
+          width: 100%;
         }
+        
         .main-content {
           flex: 1;
+          min-width: 0; /* Prevent flex item from overflowing */
         }
+        
+        .right-sidebar {
+          gap:30px;
+          width: 350px; /* Fixed width for sidebar */
+          flex-shrink: 0; /* Prevent sidebar from shrinking */
+        }
+        
         .content-wrapper {
-          margin-top: 80px;
+          margin-top: 20px;
         }
-        .content-grid {
-          display: flex;
-          gap: 20px;
-        }
-        .content-main {
-          width: 68%;
-        }
-        .content-sidebar {
-          width: 32%;
-        }
+        
         @media (max-width: 991px) {
-          .dashboard-container {
-            padding-right: 20px;
-          }
           .dashboard-layout {
             flex-direction: column;
           }
-          .content-grid {
-            flex-direction: column;
-          }
-          .content-main,
-          .content-sidebar {
+          
+          .right-sidebar {
             width: 100%;
+            margin-top: 30px;
           }
-          .content-wrapper {
-            margin-top: 40px;
+          
+          .dashboard-container {
+            padding: 15px;
+          }
+        }
+        
+        @media (min-width: 992px) {
+          .dashboard-container {
+            padding-right: 77px;
           }
         }
       `}</style>
