@@ -28,7 +28,7 @@ This is the frontend of the **E-Lern** full-stack e-learning platform. Built usi
 ## 📦 Installation
 
 ```bash
-git clone https://github.com/yourusername/e-lern-frontend.git
+https://github.com/anzzxx/E-lern-frontend.git
 cd e-lern-frontend
 npm install
 npm start
