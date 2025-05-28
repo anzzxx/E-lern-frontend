@@ -1,8 +1,34 @@
 # React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# 🎯 E-Lern Frontend
 
-Currently, two official plugins are available:
+This is the frontend of the **E-Lern** full-stack e-learning platform. Built using **React.js**, it provides role-based interfaces for Admins, Instructors, and Students to access learning features like course enrollment, live sessions, chat, and progress tracking.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
+
+- 🔐 JWT-based login & role-based access (Admin, Tutor, Student)
+- 🎓 Course listing, purchase, and learning dashboard
+- 📊 Quiz, assignments, lesson progress tracking
+- 💬 Real-time group chat with WebSocket
+- 🎥 Webinar classes using WebRTC
+- 🌐 Responsive UI with Tailwind CSS
+- ⚙️ State management via Redux Toolkit
+
+## 🔧 Technologies Used
+
+- React.js
+- Redux Toolkit
+- React Router
+- Tailwind CSS
+- Axios
+- WebSocket
+- WebRTC (for live video sessions)
+- Netlify (deployment)
+
+## 📦 Installation
+
+```bash
+git clone https://github.com/yourusername/e-lern-frontend.git
+cd e-lern-frontend
+npm install
+npm start
