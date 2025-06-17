@@ -5,7 +5,7 @@ import MeetingInterface from "./Room/MeetingInterface";
 import { useParams } from "react-router-dom";
 
 const VideoCall = ({
-  wsUrl = "wss://api.elern.shop",
+  wsUrl = "wss://api.elern.shop/",
 }) => {
   const {roomName}=useParams()
   const username = useSelector((state) => state.auth.user.username);
